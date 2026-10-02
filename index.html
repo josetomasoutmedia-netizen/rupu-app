@@ -476,7 +476,8 @@
   .ob-splash p{color:var(--text-dim);font-size:13.5px;z-index:1;}
   .ob-splash .go{position:absolute;left:24px;right:24px;bottom:56px;}
 
-  .ob-scroll{flex:1;overflow-y:auto;padding:26px 22px 8px;}
+  .ob-scroll{flex:1;overflow-y:auto;padding:calc(26px + env(safe-area-inset-top,0px)) 22px 8px;}
+  .ob-scroll.has-back{padding-top:calc(58px + env(safe-area-inset-top,0px));}
   .ob-scroll::-webkit-scrollbar{display:none;}
   .ob-foot{flex:none;padding:14px 22px 30px;}
   .ob-eyebrow{margin-bottom:10px;}
@@ -816,6 +817,7 @@ const S = {
   verifyStep:'intro',
   mapView:null, liveLoc:null,
   authView:'login', authBusy:false, authError:'', authPhoto:null,
+  authDraft:{name:'', username:'', email:'', password:'', emailLogin:'', passwordLogin:'', terms:false},
 };
 
 /* ---------------- Chile geo projection (illustrative, not survey-accurate) ---------------- */
@@ -834,6 +836,7 @@ const SUPABASE_URL = 'https://ccfqppivdhqrgsbgbtec.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_aQA0SPCQiHRjYtPjh1EpSw_exjGODWy';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let CURRENT_UID = null;
+let _pendingSignupUid = null;
 
 function isRealId(id){ return typeof id==='string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id); }
 
@@ -845,6 +848,20 @@ async function uploadToStorage(bucket, path, dataUrl){
   const { data } = sb.storage.from(bucket).getPublicUrl(path);
   return data.publicUrl;
 }
+
+function pushAuthHistory(step){
+  try{ history.pushState({rupuAuthStep:step}, '', location.pathname+location.search); }catch(e){}
+}
+window.addEventListener('popstate', (e)=>{
+  if(S.stage==='app') return; // once logged in, let normal browser/app back behave natively
+  const step = e.state && e.state.rupuAuthStep;
+  if(step==='splash'){ S.stage='onboarding'; S.obStep='splash'; }
+  else if(step==='interests'){ S.stage='onboarding'; S.obStep='interests'; }
+  else if(step==='login'){ S.stage='auth'; S.authView='login'; }
+  else if(step==='register'){ S.stage='auth'; S.authView='register'; }
+  else { S.stage='onboarding'; S.obStep='splash'; }
+  render();
+});
 
 function profileToLocal(p, isMe){
   const initials = (p.name||p.username||'?').trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase() || '?';
@@ -946,22 +963,27 @@ function authPhotoAreaHTML(){
   return `<div class="uploadrow"><label class="uploadopt" for="authPhotoInput">${icon('photo')}<span>Elegir foto</span></label></div>`;
 }
 
+function escAttr(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function backBtnHTML(to){
+  return `<button class="iconbtn" data-act="ob-back" data-to="${to}" style="position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:14px;z-index:20;">${icon('chevronleft')}</button>`;
+}
 function renderAuth(){
   const view = S.authView || 'login';
-  const errHTML = S.authError ? `<div class="geosuggest-empty" style="margin-bottom:14px;">${icon('x','icon-sm')} ${S.authError}</div>` : '';
+  const d = S.authDraft || (S.authDraft = {name:'', username:'', email:'', password:'', emailLogin:'', passwordLogin:'', terms:false});
+  const errHTML = S.authError ? `<div class="geosuggest-empty" id="authErrorBox" style="margin-bottom:14px;">${icon('x','icon-sm')} ${S.authError}</div>` : '<div id="authErrorBox"></div>';
   if(view==='login'){
-    return `<div class="obwrap"><div class="ob-scroll">
+    return `<div class="obwrap">${backBtnHTML('interests')}<div class="ob-scroll has-back">
       <div class="eyebrow ob-eyebrow">Bienvenido de vuelta</div>
       <h2>Inicia sesión</h2>
       <p class="sub">Entra con tu cuenta de Rüpü para ver y compartir con el resto del grupo.</p>
       ${errHTML}
-      <div class="field"><label>Correo</label><input id="authEmail" type="email" autocomplete="email" placeholder="correo@ejemplo.com"></div>
-      <div class="field"><label>Contraseña</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Tu contraseña"></div>
+      <div class="field"><label>Correo</label><input id="authEmail" type="email" autocomplete="email" placeholder="correo@ejemplo.com" value="${escAttr(d.emailLogin)}"></div>
+      <div class="field"><label>Contraseña</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Tu contraseña" value="${escAttr(d.passwordLogin)}"></div>
       <div class="field" style="padding-top:4px;"><button class="btn btn-accent btn-block" data-act="do-login" ${S.authBusy?'disabled':''}>${S.authBusy?'Entrando…':'Entrar'}</button></div>
       <p class="sub" style="text-align:center;margin-top:18px;">¿No tienes cuenta? <a href="#" data-act="auth-switch" data-view="register" style="color:var(--accent);">Regístrate</a></p>
     </div></div>`;
   }
-  return `<div class="obwrap"><div class="ob-scroll">
+  return `<div class="obwrap">${backBtnHTML('interests')}<div class="ob-scroll has-back">
     <div class="eyebrow ob-eyebrow">Únete a Rüpü</div>
     <h2>Crea tu cuenta</h2>
     <p class="sub">Beta privada — tu perfil, fotos y publicaciones quedan guardados y los puede ver el resto del grupo de prueba.</p>
@@ -969,17 +991,23 @@ function renderAuth(){
     <div class="field"><label>Foto de perfil (opcional)</label></div>
     <div id="authPhotoArea">${authPhotoAreaHTML()}</div>
     <input type="file" accept="image/*" id="authPhotoInput" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
-    <div class="field"><label>Nombre</label><input id="authName" placeholder="Tu nombre"></div>
-    <div class="field"><label>Usuario</label><input id="authUsername" placeholder="sin espacios, ej: charly23"></div>
-    <div class="field"><label>Correo</label><input id="authEmail2" type="email" autocomplete="email" placeholder="correo@ejemplo.com"></div>
-    <div class="field"><label>Contraseña</label><input id="authPassword2" type="password" autocomplete="new-password" placeholder="Mínimo 6 caracteres"></div>
+    <div class="field"><label>Nombre</label><input id="authName" placeholder="Tu nombre" value="${escAttr(d.name)}"></div>
+    <div class="field"><label>Usuario</label><input id="authUsername" placeholder="sin espacios, ej: charly23" value="${escAttr(d.username)}"></div>
+    <div class="field"><label>Correo</label><input id="authEmail2" type="email" autocomplete="email" placeholder="correo@ejemplo.com" value="${escAttr(d.email)}"></div>
+    <div class="field"><label>Contraseña</label><input id="authPassword2" type="password" autocomplete="new-password" placeholder="Mínimo 6 caracteres" value="${escAttr(d.password)}"></div>
     <div class="field" style="display:flex;align-items:flex-start;gap:10px;">
-      <input type="checkbox" id="authTerms" style="margin-top:3px;flex:none;width:16px;height:16px;">
+      <input type="checkbox" id="authTerms" style="margin-top:3px;flex:none;width:16px;height:16px;" ${d.terms?'checked':''}>
       <label for="authTerms" style="font-size:12px;color:var(--text-dim);flex:1;display:block;">Acepto que esto es una beta de prueba y que mi perfil, fotos y publicaciones quedan guardados y visibles para el resto del grupo de prueba.</label>
     </div>
     <div class="field" style="padding-top:4px;"><button class="btn btn-accent btn-block" data-act="do-register" ${S.authBusy?'disabled':''}>${S.authBusy?'Creando cuenta…':'Crear cuenta'}</button></div>
     <p class="sub" style="text-align:center;margin-top:18px;">¿Ya tienes cuenta? <a href="#" data-act="auth-switch" data-view="login" style="color:var(--accent);">Inicia sesión</a></p>
   </div></div>`;
+}
+function showAuthError(msg){
+  S.authError = msg;
+  render();
+  toast(msg);
+  setTimeout(()=>{ const box = document.getElementById('authErrorBox'); if(box) box.scrollIntoView({block:'center'}); const sc = document.querySelector('.ob-scroll'); if(sc) sc.scrollTop = 0; }, 30);
 }
 
 
@@ -1814,7 +1842,7 @@ function renderOnboarding(){
     </div></div>`;
   }
   const interestList = Object.keys(CATS);
-  return `<div class="obwrap"><div class="ob-scroll">
+  return `<div class="obwrap">${backBtnHTML('splash')}<div class="ob-scroll has-back">
     <div class="eyebrow ob-eyebrow">Último paso</div>
     <h2>¿Qué te gusta hacer?</h2>
     <p class="sub">Elige tus intereses para que tu mapa y tu feed empiecen ajustados a ti. Puedes cambiarlos cuando quieras.</p>
@@ -2210,9 +2238,10 @@ document.addEventListener('click', (e)=>{
   if(act==='pick-reason'){ S.reportReason = parseInt(t.dataset.i); S.overlays[S.overlays.length-1].render = renderReport; renderOverlays(); return; }
   if(act==='submit-report'){ popOverlay(); toast('Reporte enviado, gracias por ayudar a la comunidad'); return; }
 
-  if(act==='ob-go'){ S.obStep=t.dataset.step; render(); return; }
+  if(act==='ob-go'){ S.obStep=t.dataset.step; pushAuthHistory(t.dataset.step); render(); return; }
   if(act==='toggle-interest'){ const k=t.dataset.k; S.interests.has(k)? S.interests.delete(k) : S.interests.add(k); render(); return; }
-  if(act==='ob-finish'){ S.stage='auth'; S.authView='register'; S.authError=''; render(); return; }
+  if(act==='ob-finish'){ S.stage='auth'; S.authView='register'; S.authError=''; pushAuthHistory('register'); render(); return; }
+  if(act==='ob-back'){ history.back(); return; }
 
   if(act==='open-edit-profile'){ pushOverlay('full', renderEditProfile); return; }
   if(act==='remove-profile-photo'){
@@ -2258,20 +2287,29 @@ document.addEventListener('click', (e)=>{
     return;
   }
 
-  if(act==='auth-switch'){ S.authView = t.dataset.view; S.authError=''; render(); return; }
+  if(act==='auth-switch'){ S.authView = t.dataset.view; S.authError=''; pushAuthHistory(t.dataset.view); render(); return; }
   if(act==='auth-remove-photo'){ S.authPhoto=null; const a=document.getElementById('authPhotoArea'); if(a) a.innerHTML=authPhotoAreaHTML(); return; }
   if(act==='do-login'){
     const email = (document.getElementById('authEmail')||{}).value||'';
     const password = (document.getElementById('authPassword')||{}).value||'';
-    if(!email.trim() || !password){ S.authError='Completa correo y contraseña.'; render(); return; }
+    S.authDraft.emailLogin = email; S.authDraft.passwordLogin = password;
+    if(!email.trim()){ showAuthError('Falta tu correo.'); return; }
+    if(!password){ showAuthError('Falta tu contraseña.'); return; }
     S.authBusy=true; S.authError=''; render();
-    sb.auth.signInWithPassword({email:email.trim(), password}).then(async ({data, error})=>{
-      if(error){ S.authBusy=false; S.authError='Correo o contraseña incorrectos.'; render(); return; }
-      CURRENT_UID = data.user.id;
-      try{ await loadAllData(); }catch(e){ console.warn(e); }
-      S.authBusy=false; S.stage='app'; S.tab='inicio'; render();
-      toast('¡Bienvenido de vuelta!');
-    });
+    (async ()=>{
+      try{
+        const { data, error } = await sb.auth.signInWithPassword({email:email.trim(), password});
+        if(error){ S.authBusy=false; showAuthError('Correo o contraseña incorrectos.'); return; }
+        CURRENT_UID = data.user.id;
+        try{ await loadAllData(); }catch(e){ console.warn('Rüpü: error cargando datos', e); }
+        S.authBusy=false; S.authDraft.emailLogin=''; S.authDraft.passwordLogin='';
+        S.stage='app'; S.tab='inicio'; render();
+        toast('¡Bienvenido de vuelta!');
+      }catch(err){
+        S.authBusy=false;
+        showAuthError('No se pudo iniciar sesión: '+(err && err.message ? err.message : 'intenta de nuevo.'));
+      }
+    })();
     return;
   }
   if(act==='do-register'){
@@ -2280,30 +2318,54 @@ document.addEventListener('click', (e)=>{
     const email = (document.getElementById('authEmail2')||{}).value||'';
     const password = (document.getElementById('authPassword2')||{}).value||'';
     const termsEl = document.getElementById('authTerms');
-    if(!name.trim() || !username.trim() || !email.trim() || !password){ S.authError='Completa todos los campos.'; render(); return; }
-    if(password.length<6){ S.authError='La contraseña debe tener al menos 6 caracteres.'; render(); return; }
-    if(!termsEl || !termsEl.checked){ S.authError='Debes aceptar los términos para continuar.'; render(); return; }
+    const termsChecked = !!(termsEl && termsEl.checked);
+    S.authDraft.name=name; S.authDraft.username=username; S.authDraft.email=email; S.authDraft.password=password; S.authDraft.terms=termsChecked;
+    if(!name.trim()){ showAuthError('Falta tu nombre.'); return; }
+    if(!username.trim()){ showAuthError('Falta tu usuario.'); return; }
+    if(!email.trim()){ showAuthError('Falta tu correo.'); return; }
+    if(!password){ showAuthError('Falta tu contraseña.'); return; }
+    if(password.length<6){ showAuthError('La contraseña debe tener al menos 6 caracteres.'); return; }
+    if(!termsChecked){ showAuthError('Debes aceptar los términos para continuar.'); return; }
     const cleanUsername = username.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
-    if(!cleanUsername){ S.authError='Usuario inválido (usa letras, números o guión bajo).'; render(); return; }
+    if(!cleanUsername){ showAuthError('Usuario inválido (usa letras, números o guión bajo).'); return; }
     S.authBusy=true; S.authError=''; render();
     (async ()=>{
-      const { data, error } = await sb.auth.signUp({ email: email.trim(), password });
-      if(error){ S.authBusy=false; S.authError=error.message; render(); return; }
-      const uid = data.user.id;
-      let avatarUrl = null;
-      if(S.authPhoto){
-        try{ avatarUrl = await uploadToStorage('avatars', uid+'/avatar.jpg', S.authPhoto); }catch(e){ console.warn('avatar upload failed', e); }
-      }
-      const { error: perr } = await sb.from('profiles').insert({ id:uid, username:cleanUsername, name:name.trim(), avatar_url:avatarUrl });
-      if(perr){
+      try{
+        let uid = _pendingSignupUid;
+        if(!uid){
+          const { data, error } = await sb.auth.signUp({ email: email.trim(), password });
+          if(error){
+            if(/already registered|already exists/i.test(error.message)){
+              const { data: loginData, error: loginError } = await sb.auth.signInWithPassword({email:email.trim(), password});
+              if(loginError) throw new Error('Ese correo ya tiene una cuenta. Si es tuya, inicia sesión; si no, usa otro correo.');
+              uid = loginData.user.id;
+            } else {
+              throw error;
+            }
+          } else {
+            uid = data.user.id;
+            _pendingSignupUid = uid;
+          }
+        }
+        let avatarUrl = null;
+        if(S.authPhoto){
+          try{ avatarUrl = await uploadToStorage('avatars', uid+'/avatar.jpg', S.authPhoto); }catch(e){ console.warn('avatar upload failed', e); }
+        }
+        const { error: perr } = await sb.from('profiles').upsert({ id:uid, username:cleanUsername, name:name.trim(), avatar_url:avatarUrl });
+        if(perr){
+          if(/duplicate|unique/i.test(perr.message)) throw new Error('Ese nombre de usuario ya está en uso. Tu cuenta ya quedó creada — solo elige otro usuario y presiona "Crear cuenta" de nuevo.');
+          throw perr;
+        }
+        _pendingSignupUid = null;
+        CURRENT_UID = uid;
+        S.authDraft = {name:'', username:'', email:'', password:'', emailLogin:'', passwordLogin:'', terms:false};
+        try{ await loadAllData(); }catch(e){ console.warn('Rüpü: error cargando datos', e); }
+        S.authBusy=false; S.stage='app'; S.tab='inicio'; S.authPhoto=null; render();
+        toast('¡Cuenta creada! Bienvenido a Rüpü');
+      }catch(err){
         S.authBusy=false;
-        S.authError = /duplicate|unique/i.test(perr.message) ? 'Ese nombre de usuario ya está en uso.' : perr.message;
-        render(); return;
+        showAuthError(err && err.message ? err.message : 'No se pudo crear la cuenta, intenta de nuevo.');
       }
-      CURRENT_UID = uid;
-      try{ await loadAllData(); }catch(e){ console.warn(e); }
-      S.authBusy=false; S.stage='app'; S.tab='inicio'; S.authPhoto=null; render();
-      toast('¡Cuenta creada! Bienvenido a Rüpü');
     })();
     return;
   }
@@ -2408,6 +2470,12 @@ document.addEventListener('change', (e)=>{
 });
 
 document.addEventListener('input', (e)=>{
+  const authFieldMap = {
+    authEmail:'emailLogin', authPassword:'passwordLogin',
+    authName:'name', authUsername:'username', authEmail2:'email', authPassword2:'password',
+  };
+  if(authFieldMap[e.target.id]){ S.authDraft[authFieldMap[e.target.id]] = e.target.value; }
+  if(e.target.id==='authTerms'){ S.authDraft.terms = e.target.checked; }
   if(e.target.id==='searchbox'){
     S.query = e.target.value;
     const box = S.overlays[S.overlays.length-1];
