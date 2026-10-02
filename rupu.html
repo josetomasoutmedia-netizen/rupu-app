@@ -1,0 +1,2453 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rüpü</title>
+<meta name="description" content="Prototipo navegable de Rüpü, red social de exploración y turismo activo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#0c1310;
+    --bg-1:#0c1310;
+    --panel:#0f1713;
+    --raised:#15211a;
+    --raised-2:#1c2b22;
+    --line:#28382e;
+    --line-soft:#1d2b23;
+    --text:#f2ece0;
+    --text-dim:#adbab0;
+    --text-faint:#71857a;
+    --accent:#ff6a3d;
+    --accent-2:#ff8a61;
+    --on-accent:#1c0a03;
+    --water:#37b8ab;
+    --sand:#e7b04c;
+    --moss:#7fa25a;
+    --sky:#5b93d1;
+    --plum:#c15c86;
+    --danger:#e5654f;
+    --good:#6fbf7a;
+    --shadow:0 20px 60px -20px rgba(0,0,0,.7);
+    --radius-lg:26px;
+    --radius-md:16px;
+    --radius-sm:10px;
+    font-family:"Work Sans",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1100px 700px at 14% -6%, #14241c 0%, transparent 60%),
+      radial-gradient(900px 640px at 92% 8%, #1a2a2f 0%, transparent 55%),
+      var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+  ::selection{background:var(--accent);color:var(--on-accent);}
+  ::-webkit-scrollbar{width:0;height:0;}
+  button{font-family:inherit;}
+  h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif;font-weight:640;letter-spacing:-0.01em;text-wrap:balance;margin:0;}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);}
+  a{color:inherit;}
+  svg{display:block;}
+  .icon{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none;}
+  .icon-sm{width:16px;height:16px;}
+  .icon-lg{width:26px;height:26px;}
+
+  /* ---------- page stage ---------- */
+  .stage{
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    gap:56px;
+    padding:48px 32px;
+  }
+  .brandpanel{
+    width:340px;
+    flex:none;
+    padding-top:18px;
+    position:sticky;
+    top:48px;
+  }
+  .wordmark{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .wordmark .mark{
+    width:38px;height:38px;border-radius:11px;
+    background:linear-gradient(155deg,var(--accent),#d9502a);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 8px 18px -6px rgba(255,106,61,.55);
+  }
+  .wordmark .mark svg{width:20px;height:20px;stroke:#1c0a03;stroke-width:2.1;}
+  .wordmark .name{font-family:"Fraunces",serif;font-size:27px;font-weight:680;font-style:italic;letter-spacing:-.01em;}
+  .brandpanel .tag{color:var(--text-dim);font-size:15px;line-height:1.5;margin-bottom:22px;max-width:30ch;}
+  .loop{
+    display:flex;flex-wrap:wrap;gap:0 6px;
+    margin-bottom:26px;
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--text-faint);
+  }
+  .loop span.step{color:var(--accent-2);}
+  .panel-block{
+    border-top:1px solid var(--line-soft);
+    padding-top:16px;
+    margin-top:16px;
+  }
+  .panel-block h4{font-size:12px;font-family:"IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);font-weight:600;margin-bottom:10px;}
+  .jumplist{display:flex;flex-direction:column;gap:3px;}
+  .jumplist button{
+    all:unset;cursor:pointer;
+    display:flex;align-items:center;gap:10px;
+    padding:8px 10px;border-radius:9px;
+    font-size:13.5px;color:var(--text-dim);
+    transition:background .15s, color .15s;
+  }
+  .jumplist button:hover{background:var(--raised);color:var(--text);}
+  .jumplist button.active{background:var(--raised-2);color:var(--accent-2);}
+  .jumplist button .icon{width:16px;height:16px;opacity:.85;}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 14px;}
+  .legend .row{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-dim);}
+  .legend .dot{width:9px;height:9px;border-radius:50%;}
+  .brandpanel .credit{margin-top:22px;font-size:11.5px;color:var(--text-faint);line-height:1.6;}
+
+  /* ---------- device frame ---------- */
+  .devicewrap{flex:none;}
+  .device{
+    width:390px;height:844px;
+    background:#000;
+    border-radius:52px;
+    padding:12px;
+    box-shadow:var(--shadow), 0 0 0 1px #000;
+    position:relative;
+  }
+  .device::before{
+    content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:126px;height:32px;background:#000;border-radius:0 0 18px 18px;z-index:40;
+  }
+  .devicescreen{
+    width:100%;height:100%;
+    background:var(--panel);
+    border-radius:40px;
+    overflow:hidden;
+    position:relative;
+    display:flex;flex-direction:column;
+  }
+  .statusbar{
+    height:30px;flex:none;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 26px 0 30px;
+    font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;color:var(--text);
+    position:relative;z-index:30;
+  }
+  .statusbar .batt{width:20px;height:9px;border:1.4px solid var(--text);border-radius:3px;position:relative;}
+  .statusbar .batt::after{content:"";position:absolute;right:-3px;top:2px;width:1.6px;height:3px;background:var(--text);}
+  .statusbar .batt::before{content:"";position:absolute;inset:1.4px;right:3px;background:var(--text);border-radius:1px;}
+
+  .screenbody{flex:1;min-height:0;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch;}
+  .screenbody::-webkit-scrollbar{display:none;}
+
+  .tabbar{
+    flex:none;height:78px;
+    display:flex;align-items:flex-start;justify-content:space-around;
+    padding-top:10px;
+    background:linear-gradient(180deg, transparent, var(--panel) 22%);
+    border-top:1px solid var(--line-soft);
+    position:relative;z-index:20;
+  }
+  .tabbtn{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;width:58px;color:var(--text-faint);}
+  .tabbtn .icon{transition:transform .15s;}
+  .tabbtn span{font-size:10.5px;font-weight:600;letter-spacing:.01em;}
+  .tabbtn.active{color:var(--accent-2);}
+  .tabbtn.active .icon{transform:translateY(-1px);}
+  .tabbtn.create{margin-top:-26px;color:var(--on-accent);}
+  .tabbtn.create .pluswrap{
+    width:52px;height:52px;border-radius:16px;
+    background:linear-gradient(155deg,var(--accent),#d9502a);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 10px 22px -8px rgba(255,106,61,.65);
+    margin-bottom:2px;
+  }
+  .tabbtn.create span{color:var(--text-faint);}
+  .home-indicator{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:120px;height:4px;border-radius:3px;background:var(--text);opacity:.5;z-index:30;}
+
+  /* ---------- shared UI ---------- */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:6px 18px 12px;
+  }
+  .topbar .wm{display:flex;align-items:center;gap:8px;}
+  .topbar .wm .mark{width:26px;height:26px;border-radius:8px;background:linear-gradient(155deg,var(--accent),#d9502a);display:flex;align-items:center;justify-content:center;}
+  .topbar .wm .mark svg{width:14px;height:14px;stroke:#1c0a03;stroke-width:2.2;}
+  .topbar .wm b{font-family:"Fraunces",serif;font-style:italic;font-size:19px;font-weight:680;}
+  .topbar .actions{display:flex;gap:6px;}
+  .iconbtn{all:unset;cursor:pointer;width:36px;height:36px;border-radius:50%;background:var(--raised);display:flex;align-items:center;justify-content:center;color:var(--text);position:relative;}
+  .iconbtn .dot{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--accent);border:1.5px solid var(--panel);}
+
+  .section-title{display:flex;align-items:baseline;justify-content:space-between;padding:0 18px;margin:18px 0 10px;}
+  .section-title h3{font-size:16px;}
+  .section-title .see{font-size:12px;color:var(--accent-2);font-weight:600;}
+
+  .hscroll{display:flex;gap:10px;overflow-x:auto;padding:2px 18px 6px;scroll-snap-type:x proximity;}
+  .hscroll::-webkit-scrollbar{display:none;}
+
+  .chip{
+    all:unset;cursor:pointer;flex:none;
+    padding:8px 14px;border-radius:100px;
+    font-size:12.5px;font-weight:600;color:var(--text-dim);
+    background:var(--raised);border:1px solid var(--line);
+    display:flex;align-items:center;gap:6px;
+    white-space:nowrap;
+  }
+  .chip.active{background:var(--accent);color:var(--on-accent);border-color:transparent;}
+  .chip .sw{width:8px;height:8px;border-radius:50%;}
+
+  .avatar{border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-weight:600;color:#0c1310;position:relative;}
+  .editbadge{position:absolute;bottom:-2px;right:-2px;width:26px;height:26px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;border:2.5px solid var(--panel);}
+  .editbadge .icon{stroke:var(--on-accent);width:13px;height:13px;}
+  .lvlbadge{position:absolute;bottom:-3px;right:-3px;background:var(--panel);border:2px solid var(--panel);border-radius:50%;width:19px;height:19px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;font-family:"IBM Plex Mono",monospace;color:var(--accent-2);background:var(--raised-2);}
+  .verifycard{margin:0 18px 16px;padding:13px 14px;border-radius:14px;background:linear-gradient(135deg,var(--raised-2),var(--raised));border:1px solid var(--line-soft);display:flex;align-items:center;gap:12px;cursor:pointer;}
+  .verifycard .vc-ic{width:34px;height:34px;border-radius:10px;background:var(--water);display:flex;align-items:center;justify-content:center;flex:none;}
+  .verifycard .vc-ic .icon{stroke:#062521;}
+  .verifycard .vc-txt{flex:1;}
+  .verifycard .vc-txt b{font-size:13px;display:block;}
+  .verifycard .vc-txt span{font-size:11px;color:var(--text-faint);}
+  .verifyhero{display:flex;justify-content:center;padding:10px 0 4px;}
+  .verifyhero .vh-ic{width:64px;height:64px;border-radius:20px;background:linear-gradient(155deg,var(--water),#1f7d73);display:flex;align-items:center;justify-content:center;}
+  .verifyhero .vh-ic .icon{stroke:#062521;}
+  .verifypoints{padding:0 18px 4px;display:flex;flex-direction:column;gap:10px;}
+  .vp-row{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-dim);}
+  .vp-row .icon{color:var(--good);flex:none;}
+  .camwrap{position:relative;margin:6px 18px 0;height:280px;border-radius:22px;overflow:hidden;background:radial-gradient(circle at 50% 40%, #26302b, #0c1310 75%);}
+  .camfeed{position:absolute;inset:0;background:repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 1px, transparent 1px, transparent 3px);}
+  .camguide{position:absolute;inset:0;width:100%;height:100%;animation:camspin 6s linear infinite;}
+  @keyframes camspin{0%{opacity:.6;}50%{opacity:1;}100%{opacity:.6;}}
+  .camscan{position:absolute;left:8%;right:8%;height:3px;background:linear-gradient(90deg,transparent,var(--water),transparent);top:20%;animation:camsweep 1.8s ease-in-out infinite;}
+  @keyframes camsweep{0%{top:18%;}50%{top:78%;}100%{top:18%;}}
+  .verifydone{width:76px;height:76px;border-radius:50%;background:var(--good);display:flex;align-items:center;justify-content:center;margin:0 auto;}
+  .verifydone .icon{stroke:#08211a;width:34px;height:34px;}
+
+  .scene{position:relative;overflow:hidden;background:var(--raised);}
+  .scene svg{position:absolute;inset:0;width:100%;height:100%;}
+  .scene .badge{position:absolute;top:10px;left:10px;background:rgba(12,19,16,.62);backdrop-filter:blur(6px);padding:5px 10px 5px 8px;border-radius:100px;display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:#fff;}
+  .scene .badge .icon{width:13px;height:13px;}
+
+  .btn{all:unset;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-weight:650;font-size:14px;padding:13px 18px;border-radius:100px;}
+  .btn-accent{background:var(--accent);color:var(--on-accent);}
+  .btn-ghost{background:var(--raised-2);color:var(--text);}
+  .btn-line{background:transparent;border:1.4px solid var(--line);color:var(--text);}
+  .btn-block{width:100%;}
+  .btn-sm{padding:9px 14px;font-size:13px;}
+  .btn[disabled]{opacity:.45;pointer-events:none;}
+
+  .card{background:var(--raised);border:1px solid var(--line-soft);border-radius:var(--radius-md);}
+
+  /* ---------- feed ---------- */
+  .storyrow{display:flex;gap:14px;overflow-x:auto;padding:2px 18px 18px;}
+  .storyrow::-webkit-scrollbar{display:none;}
+  .storyitem{flex:none;width:58px;display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .storyitem .ring{width:58px;height:58px;border-radius:50%;padding:2.5px;background:conic-gradient(from 210deg, var(--accent), var(--sand), var(--water), var(--accent));}
+  .storyitem .ring .avatar{width:100%;height:100%;font-size:13px;border:2.5px solid var(--panel);}
+  .storyitem span{font-size:10.5px;color:var(--text-dim);max-width:60px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;}
+
+  .post{padding:16px 0;border-bottom:1px solid var(--line-soft);}
+  .post-head{display:flex;align-items:center;gap:10px;padding:0 18px 12px;}
+  .post-head .avatar{width:38px;height:38px;font-size:13px;}
+  .post-head .who{flex:1;min-width:0;}
+  .post-head .who b{font-size:13.5px;display:block;}
+  .post-head .who .loc{font-size:11.5px;color:var(--text-faint);display:flex;align-items:center;gap:3px;}
+  .post-head .loc .icon{width:11px;height:11px;}
+  .post-media{margin:0 18px;border-radius:var(--radius-md);height:270px;}
+  .post-actions{display:flex;align-items:center;gap:16px;padding:12px 18px 6px;}
+  .actbtn{all:unset;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--text-dim);font-size:12.5px;font-weight:600;font-family:"IBM Plex Mono",monospace;}
+  .actbtn.liked{color:var(--accent-2);}
+  .actbtn .icon{width:19px;height:19px;}
+  .actbtn.save{margin-left:auto;}
+  .post-caption{padding:2px 18px 0;font-size:13.5px;line-height:1.5;color:var(--text);}
+  .post-caption b{margin-right:6px;}
+  .post-tags{display:flex;gap:6px;padding:8px 18px 0;flex-wrap:wrap;}
+  .taglet{font-size:11px;font-weight:600;color:var(--text-dim);background:var(--raised-2);padding:4px 9px;border-radius:100px;}
+
+  /* ---------- map (real MapLibre GL JS + OpenFreeMap tiles) ---------- */
+  .mapwrap{position:relative;height:calc(100% - 0px);min-height:520px;}
+  .maplibreOuter{position:relative;height:390px;overflow:hidden;background:#1a2420;}
+  .maplibreMap{position:absolute;inset:0;}
+  #maplibreMap.maplibreMap{position:absolute;top:0;right:0;bottom:0;left:0;width:auto;height:auto;}
+  .maplibreMap .maplibregl-ctrl-top-right{top:64px;}
+  .maplibreMap .maplibregl-ctrl-group{background:rgba(21,33,26,.9);border:1px solid var(--line-soft);box-shadow:none;border-radius:12px;overflow:hidden;}
+  .maplibreMap .maplibregl-ctrl-group button{background:transparent;}
+  .maplibreMap .maplibregl-ctrl-group button:not(:disabled):hover{background:rgba(255,255,255,.08);}
+  .maplibreMap .maplibregl-ctrl-attrib{background:rgba(12,19,16,.55)!important;color:var(--text-faint);font-size:9.5px;}
+  .maplibreMap .maplibregl-ctrl-attrib a{color:var(--text-dim);}
+  .maplibreMap .maplibregl-ctrl-attrib-button{filter:invert(1) opacity(.6);}
+  .geohint{position:absolute;left:14px;bottom:14px;background:rgba(21,33,26,.85);backdrop-filter:blur(6px);border:1px solid var(--line-soft);color:var(--text-dim);font-size:10.5px;font-weight:600;padding:8px 12px;border-radius:100px;display:flex;align-items:center;gap:6px;z-index:5;pointer-events:none;}
+  .geohint .icon{width:13px;height:13px;color:var(--water);}
+  .pin{cursor:pointer;}
+  .pin .dot{width:34px;height:34px;border-radius:50% 50% 50% 4px;transform:rotate(45deg);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px -4px rgba(0,0,0,.6);}
+  .pin .dot svg{transform:rotate(-45deg);width:16px;height:16px;stroke:#0c1310;stroke-width:2.1;}
+  .pin .cnt{position:absolute;top:-5px;right:-5px;background:var(--panel);border-radius:50%;width:16px;height:16px;font-size:8.5px;font-family:"IBM Plex Mono",monospace;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--text-dim);}
+  .mapcharacter{position:relative;width:34px;height:34px;}
+  .mapcharacter .mephoto{width:30px;height:30px;border-radius:50%;object-fit:cover;display:block;position:absolute;left:50%;bottom:2px;transform:translateX(-50%);z-index:2;border:2.5px solid var(--panel);box-shadow:0 4px 8px rgba(0,0,0,.45);}
+  .mapcharacter .medot{width:20px;height:20px;border-radius:50%;background:var(--accent);position:absolute;left:50%;bottom:7px;transform:translateX(-50%);z-index:2;border:2.5px solid var(--panel);box-shadow:0 4px 8px rgba(0,0,0,.45);}
+  .mapcharacter .radiusring{position:absolute;left:50%;bottom:0;transform:translate(-50%,50%);width:100px;height:100px;border-radius:50%;background:radial-gradient(circle, rgba(55,184,171,.16), transparent 72%);border:1px dashed rgba(55,184,171,.45);z-index:0;}
+  .mapcharacter .pulse{position:absolute;left:50%;bottom:0;width:16px;height:16px;transform:translate(-50%,50%);border-radius:50%;border:1.6px solid var(--water);animation:pulse 2.4s ease-out infinite;z-index:1;}
+  @keyframes pulse{0%{transform:translate(-50%,50%) scale(.3);opacity:.9;}100%{transform:translate(-50%,50%) scale(4.5);opacity:0;}}
+  .mapfloat{position:absolute;right:14px;top:14px;display:flex;flex-direction:column;gap:8px;z-index:5;}
+  .mapfloat .iconbtn{background:rgba(21,33,26,.85);backdrop-filter:blur(6px);border:1px solid var(--line-soft);}
+  .mapsearch{position:absolute;top:12px;left:14px;right:60px;z-index:6;}
+  .searchbar{display:flex;align-items:center;gap:9px;background:rgba(21,33,26,.92);backdrop-filter:blur(8px);border:1px solid var(--line-soft);border-radius:100px;padding:11px 14px;color:var(--text-faint);font-size:13px;}
+  .searchbar input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:13px;font-family:inherit;min-width:0;}
+  .searchbar input::placeholder{color:var(--text-faint);}
+  .mapsearch-results{margin-top:8px;background:rgba(15,23,19,.97);backdrop-filter:blur(10px);border:1px solid var(--line-soft);border-radius:16px;overflow:hidden;max-height:260px;overflow-y:auto;}
+  .mapsearch-results:empty{display:none;border:none;}
+  .mapsearch-results .geosuggest-item{padding:12px 14px;border-radius:0;border-bottom:1px solid var(--line-soft);}
+  .mapsearch-results .geosuggest-item:last-child{border-bottom:none;}
+  .geosuggest-wrap{position:relative;}
+  .geosuggest-results{margin:2px 18px 4px;}
+  .geosuggest-results:empty{margin:0;}
+  .geosuggest-item{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;width:100%;padding:10px 10px;border-radius:12px;cursor:pointer;}
+  .geosuggest-item:hover, .geosuggest-item:active{background:var(--raised-2);}
+  .geosuggest-item .gs-ic{width:30px;height:30px;border-radius:50%;background:var(--raised-2);display:flex;align-items:center;justify-content:center;color:var(--water);flex:none;}
+  .geosuggest-item .gs-txt{flex:1;min-width:0;}
+  .geosuggest-item .gs-txt b{display:block;font-size:13.5px;font-weight:600;}
+  .geosuggest-item .gs-txt span{display:block;font-size:11.5px;color:var(--text-faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .geosuggest-loading, .geosuggest-empty{padding:10px 12px;font-size:12.5px;color:var(--text-faint);display:flex;align-items:center;gap:8px;}
+  .nearsheet{padding:16px 18px 8px;background:var(--panel);border-top-left-radius:22px;border-top-right-radius:22px;margin-top:-18px;position:relative;z-index:3;}
+  .nearsheet .handle{width:36px;height:4px;background:var(--line);border-radius:3px;margin:0 auto 14px;}
+  .placecard{flex:none;width:168px;border-radius:var(--radius-md);overflow:hidden;background:var(--raised);border:1px solid var(--line-soft);cursor:pointer;}
+  .placecard .scene{height:96px;}
+  .placecard .pc-body{padding:10px 11px 12px;}
+  .placecard b{font-size:13px;display:block;margin-bottom:3px;}
+  .placecard .meta{font-size:11px;color:var(--text-faint);display:flex;align-items:center;gap:8px;}
+  .star{color:var(--sand);}
+
+  /* ---------- sheets / overlays ---------- */
+  .overlaylayer{position:absolute;inset:0;z-index:50;pointer-events:none;}
+  .scrim{position:absolute;inset:0;background:rgba(6,10,8,.6);opacity:0;transition:opacity .2s;pointer-events:none;}
+  .scrim.show{opacity:1;pointer-events:auto;}
+  .sheet{
+    position:absolute;left:0;right:0;bottom:0;max-height:88%;
+    background:var(--panel);border-top-left-radius:26px;border-top-right-radius:26px;
+    border-top:1px solid var(--line-soft);
+    transform:translateY(102%);transition:transform .28s cubic-bezier(.2,.8,.2,1);
+    display:flex;flex-direction:column;pointer-events:auto;
+    box-shadow:0 -20px 50px -20px rgba(0,0,0,.6);
+  }
+  .sheet.show{transform:translateY(0);}
+  .sheet .handle{width:38px;height:4px;background:var(--line);border-radius:3px;margin:12px auto 4px;flex:none;}
+  .sheet-scroll{overflow-y:auto;padding-bottom:24px;}
+  .sheet-scroll::-webkit-scrollbar{display:none;}
+
+  .modalcard{
+    position:absolute;left:16px;right:16px;top:50%;
+    background:var(--panel);border-radius:22px;border:1px solid var(--line-soft);
+    transform:translateY(-42%) scale(.94);opacity:0;transition:.2s;pointer-events:auto;
+    padding:20px;max-height:80%;overflow-y:auto;
+  }
+  .modalcard.show{transform:translateY(-50%) scale(1);opacity:1;}
+
+  .fullsheet{position:absolute;inset:0;background:var(--panel);transform:translateX(101%);transition:transform .26s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;pointer-events:auto;}
+  .fullsheet.show{transform:translateX(0);}
+  .fullsheet .sheet-scroll{flex:1;}
+
+  .sheethead{display:flex;align-items:center;gap:12px;padding:6px 16px 14px;flex:none;}
+  .sheethead h3{font-size:17px;flex:1;}
+  .backbtn{all:unset;cursor:pointer;width:34px;height:34px;border-radius:50%;background:var(--raised);display:flex;align-items:center;justify-content:center;flex:none;}
+
+  .toast{position:absolute;left:50%;bottom:96px;transform:translateX(-50%) translateY(12px);background:var(--raised-2);border:1px solid var(--line);color:var(--text);font-size:12.5px;font-weight:600;padding:11px 16px;border-radius:100px;display:flex;align-items:center;gap:8px;opacity:0;transition:.25s;z-index:80;white-space:nowrap;pointer-events:none;box-shadow:var(--shadow);}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast .icon{color:var(--good);width:16px;height:16px;}
+
+  /* ---------- place / activity detail ---------- */
+  .heroscene{height:230px;position:relative;flex:none;}
+  .heroscene .scene{height:100%;}
+  .heroscene .grad{position:absolute;inset:0;background:linear-gradient(180deg, rgba(12,19,16,0) 40%, var(--panel) 100%);}
+  .heroscene .top{position:absolute;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;}
+  .detail-body{padding:16px 18px 6px;}
+  .detail-body h2{font-size:22px;margin-bottom:6px;}
+  .metarow{display:flex;align-items:center;gap:10px;color:var(--text-dim);font-size:12.5px;margin-bottom:14px;flex-wrap:wrap;}
+  .metarow .icon{width:13px;height:13px;}
+  .by{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-dim);margin-bottom:16px;}
+  .avatarstack{display:flex;}
+  .avatarstack .avatar{width:26px;height:26px;font-size:9.5px;border:2px solid var(--panel);margin-left:-8px;}
+  .avatarstack .avatar:first-child{margin-left:0;}
+  .actionrow{display:flex;gap:8px;padding:0 18px 18px;}
+  .tabs{display:flex;gap:4px;padding:0 18px;border-bottom:1px solid var(--line-soft);margin-bottom:14px;}
+  .tabitem{all:unset;cursor:pointer;padding:10px 4px;margin-right:18px;font-size:13.5px;font-weight:600;color:var(--text-faint);border-bottom:2px solid transparent;}
+  .tabitem.active{color:var(--text);border-color:var(--accent);}
+  .desc{padding:0 18px;font-size:13.5px;line-height:1.65;color:var(--text-dim);margin-bottom:18px;}
+  .photogrid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:0 18px;}
+  .photogrid .scene{height:96px;border-radius:8px;}
+
+  .progresswrap{padding:0 18px 6px;}
+  .barbg{height:8px;border-radius:100px;background:var(--raised-2);overflow:hidden;}
+  .barfill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--accent),var(--sand));}
+  .steplist{padding:4px 18px 6px;display:flex;flex-direction:column;gap:2px;}
+  .stepitem{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line-soft);}
+  .stepitem .chk{width:24px;height:24px;border-radius:50%;border:1.6px solid var(--line);display:flex;align-items:center;justify-content:center;flex:none;}
+  .stepitem.done .chk{background:var(--good);border-color:var(--good);}
+  .stepitem.done .chk svg{stroke:#0c1310;}
+  .stepitem .txt b{display:block;font-size:13.5px;}
+  .stepitem .txt span{font-size:11.5px;color:var(--text-faint);}
+  .stepitem.done .txt b{color:var(--text-dim);text-decoration:line-through;text-decoration-color:var(--line);}
+  .rewardcard{margin:6px 18px 18px;padding:16px;border-radius:16px;background:linear-gradient(135deg,var(--raised-2),var(--raised));border:1px solid var(--line-soft);display:flex;align-items:center;gap:14px;}
+  .rewardcard .rw-icon{width:44px;height:44px;border-radius:12px;background:linear-gradient(155deg,var(--accent),#d9502a);display:flex;align-items:center;justify-content:center;flex:none;}
+  .rewardcard .rw-icon .icon{stroke:#1c0a03;}
+  .rewardcard b{font-size:14px;display:block;}
+  .rewardcard span{font-size:11.5px;color:var(--text-faint);}
+
+  /* ---------- create ---------- */
+  .createGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:6px 18px 20px;}
+  .createOpt{all:unset;cursor:pointer;background:var(--raised);border:1px solid var(--line-soft);border-radius:18px;padding:18px 14px;display:flex;flex-direction:column;gap:10px;}
+  .createOpt .ic{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;}
+  .createOpt b{font-size:14px;}
+  .createOpt span{font-size:11.5px;color:var(--text-faint);}
+
+  .field{padding:0 18px 16px;}
+  .field label{display:block;font-size:11.5px;font-weight:600;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+  .field input, .field textarea{width:100%;background:var(--raised);border:1px solid var(--line);border-radius:12px;padding:13px 14px;color:var(--text);font-size:14px;font-family:inherit;resize:none;}
+  .field input::placeholder, .field textarea::placeholder{color:var(--text-faint);}
+  .chooserow{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 16px;}
+  .uploadbox{margin:0 18px 16px;height:140px;border-radius:16px;border:1.6px dashed var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text-faint);font-size:12.5px;}
+  .uploadbox .icon{width:26px;height:26px;}
+  .uploadrow{display:flex;gap:10px;margin:0 18px 16px;}
+  .uploadopt{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;height:110px;border-radius:16px;border:1.6px dashed var(--line);color:var(--text-faint);font-size:12.5px;font-weight:600;cursor:pointer;}
+  .uploadopt .icon{width:24px;height:24px;}
+  .photopreviewbox{position:relative;margin:0 18px 16px;height:200px;border-radius:16px;background-size:cover;background-position:center;border:1px solid var(--line-soft);}
+  .removephoto{all:unset;position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(12,19,16,.78);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;}
+  .spinner{width:15px;height:15px;border:2px solid rgba(28,10,3,.3);border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .locpick{margin:0 18px 16px;padding:13px 14px;border-radius:12px;background:var(--raised-2);border:1px solid var(--line);display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-dim);}
+
+  /* ---------- activities list ---------- */
+  .challengecard{flex:none;width:250px;border-radius:18px;overflow:hidden;background:var(--raised);border:1px solid var(--line-soft);cursor:pointer;}
+  .challengecard .scene{height:110px;}
+  .challengecard .cc-body{padding:12px 14px 14px;}
+  .challengecard b{font-size:13.5px;display:block;margin-bottom:8px;}
+  .challengecard .prog-lbl{display:flex;justify-content:space-between;font-size:10.5px;font-family:"IBM Plex Mono",monospace;color:var(--text-faint);margin-top:6px;}
+
+  .explist{padding:0 18px;display:flex;flex-direction:column;gap:12px;}
+  .expcard{display:flex;gap:12px;padding:10px;cursor:pointer;}
+  .expcard .scene{width:92px;height:92px;border-radius:14px;flex:none;}
+  .expcard .info{flex:1;min-width:0;padding-top:2px;}
+  .expcard b{font-size:13.5px;display:block;margin-bottom:4px;}
+  .expcard .meta{font-size:11.5px;color:var(--text-faint);display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+
+  /* ---------- profile ---------- */
+  .profhead{padding:8px 18px 6px;}
+  .myphoto-cell{position:relative;border-radius:8px;overflow:hidden;background-size:cover;background-position:center;height:118px;}
+  .myphoto-cell .removephoto{width:24px;height:24px;top:4px;right:4px;}
+  .myphoto-add{all:unset;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1.6px dashed var(--line);border-radius:8px;color:var(--text-faint);font-size:10px;font-weight:600;cursor:pointer;height:118px;}
+  .myphoto-add .icon{width:20px;height:20px;}
+  .profhead .row1{display:flex;gap:16px;align-items:center;}
+  .profhead .avatar{width:78px;height:78px;font-size:22px;}
+  .profhead .id b{font-size:19px;display:block;font-family:"Fraunces",serif;font-weight:640;}
+  .profhead .id span{font-size:12.5px;color:var(--text-faint);}
+  .lvlrow{display:flex;align-items:center;gap:8px;margin:12px 0 4px;}
+  .lvlrow .lvltag{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:700;background:var(--raised-2);color:var(--accent-2);padding:3px 9px;border-radius:100px;}
+  .lvlrow .xp{font-size:11px;color:var(--text-faint);font-family:"IBM Plex Mono",monospace;}
+  .bio{font-size:13px;color:var(--text-dim);line-height:1.55;margin:10px 0 12px;}
+  .taglist{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+  .statrow{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);padding:14px 0;margin-bottom:14px;}
+  .statrow .st{text-align:center;}
+  .statrow .st b{display:block;font-family:"IBM Plex Mono",monospace;font-size:16px;}
+  .statrow .st span{font-size:10px;color:var(--text-faint);}
+  .profactions{display:flex;gap:8px;padding:0 18px 16px;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:0 18px;}
+  .grid3 .scene{height:118px;border-radius:6px;cursor:pointer;}
+  .badgegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:4px 18px;}
+  .badgecell{text-align:center;padding:14px 6px;border-radius:14px;background:var(--raised);border:1px solid var(--line-soft);}
+  .badgecell.locked{opacity:.4;}
+  .badgecell .bi{width:40px;height:40px;border-radius:12px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;}
+  .badgecell b{display:block;font-size:11.5px;}
+  .badgecell span{font-size:9.5px;color:var(--text-faint);}
+  .savedgrid{padding:0 18px;display:flex;flex-direction:column;gap:10px;}
+
+  /* ---------- onboarding ---------- */
+  .obwrap{height:100%;display:flex;flex-direction:column;padding:0;}
+  .ob-splash{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;position:relative;overflow:hidden;}
+  .ob-splash .glow{position:absolute;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle, rgba(255,106,61,.22), transparent 65%);}
+  .ob-splash .mark{width:78px;height:78px;border-radius:22px;background:linear-gradient(155deg,var(--accent),#d9502a);display:flex;align-items:center;justify-content:center;box-shadow:0 18px 36px -12px rgba(255,106,61,.55);z-index:1;}
+  .ob-splash .mark svg{width:40px;height:40px;stroke:#1c0a03;stroke-width:1.8;}
+  .ob-splash h1{font-size:34px;font-style:italic;z-index:1;}
+  .ob-splash p{color:var(--text-dim);font-size:13.5px;z-index:1;}
+  .ob-splash .go{position:absolute;left:24px;right:24px;bottom:56px;}
+
+  .ob-scroll{flex:1;overflow-y:auto;padding:26px 22px 8px;}
+  .ob-scroll::-webkit-scrollbar{display:none;}
+  .ob-foot{flex:none;padding:14px 22px 30px;}
+  .ob-eyebrow{margin-bottom:10px;}
+  .ob-scroll h2{font-size:25px;margin-bottom:8px;}
+  .ob-scroll .sub{color:var(--text-dim);font-size:13.5px;margin-bottom:22px;line-height:1.5;}
+  .interestgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .interestcell{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:14px;border-radius:16px;background:var(--raised);border:1.4px solid var(--line-soft);}
+  .interestcell.sel{border-color:var(--accent);background:var(--raised-2);}
+  .interestcell .ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none;}
+  .interestcell b{font-size:12.5px;}
+  .socialbtn{display:flex;align-items:center;justify-content:center;gap:10px;background:var(--raised);border:1px solid var(--line);border-radius:100px;padding:13px;font-size:13.5px;font-weight:600;margin-bottom:10px;}
+  .ordiv{display:flex;align-items:center;gap:10px;color:var(--text-faint);font-size:11px;margin:18px 0;}
+  .ordiv::before,.ordiv::after{content:"";flex:1;height:1px;background:var(--line-soft);}
+
+  /* ---------- settings / search / notifications ---------- */
+  .listrow{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid var(--line-soft);}
+  .listrow .txt{flex:1;}
+  .listrow .txt b{font-size:13.5px;display:block;}
+  .listrow .txt span{font-size:11.5px;color:var(--text-faint);}
+  .switch{width:42px;height:25px;border-radius:100px;background:var(--raised-2);border:1px solid var(--line);position:relative;flex:none;cursor:pointer;}
+  .switch::after{content:"";position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:var(--text-faint);transition:.18s;}
+  .switch.on{background:var(--accent);border-color:transparent;}
+  .switch.on::after{left:19px;background:var(--on-accent);}
+  .searchinput{margin:4px 18px 14px;display:flex;align-items:center;gap:10px;background:var(--raised);border:1px solid var(--line);border-radius:14px;padding:12px 14px;}
+  .searchinput input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:14px;font-family:inherit;}
+  .searchinput input::placeholder{color:var(--text-faint);}
+  .emptystate{padding:60px 30px;text-align:center;color:var(--text-faint);}
+  .emptystate .ic{width:44px;height:44px;margin:0 auto 14px;color:var(--line);}
+  .emptystate b{display:block;color:var(--text-dim);font-size:14px;margin-bottom:4px;}
+  .emptystate span{font-size:12.5px;line-height:1.5;}
+  .notif{display:flex;gap:12px;padding:13px 18px;border-bottom:1px solid var(--line-soft);}
+  .notif .ni{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;}
+  .notif .txt{font-size:13px;line-height:1.4;}
+  .notif .time{font-size:10.5px;color:var(--text-faint);margin-top:3px;display:block;}
+  .radiorow{display:flex;align-items:center;gap:10px;padding:13px 4px;border-bottom:1px solid var(--line-soft);cursor:pointer;font-size:13.5px;}
+  .radiorow .rd{width:19px;height:19px;border-radius:50%;border:1.6px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center;}
+  .radiorow.sel .rd{border-color:var(--accent);}
+  .radiorow.sel .rd::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--accent);}
+
+  /* ---------- mobile viewport: real full-bleed app ---------- */
+  @media (max-width:760px){
+    .stage{padding:0;gap:0;align-items:stretch;}
+    .brandpanel{display:none;}
+    .devicewrap{width:100%;}
+    .device{width:100%;height:100dvh;border-radius:0;padding:0;box-shadow:none;}
+    .device::before{display:none;}
+    .devicescreen{border-radius:0;}
+    .statusbar{display:none;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms !important;transition-duration:.01ms !important;}
+  }
+</style>
+
+<div class="stage">
+  <aside class="brandpanel">
+    <div class="wordmark">
+      <div class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2 L15 9 L22 12 L15 15 L12 22 L9 15 L2 12 L9 9 Z" stroke-linejoin="round"/></svg></div>
+      <div class="name">Rüpü</div>
+    </div>
+    <p class="tag">Camino, en mapudungún. Una red social para salir, descubrir el territorio real y compartir el recorrido.</p>
+    <div class="loop">
+      <span class="step">Descubre</span>&nbsp;→&nbsp;<span class="step">Explora</span>&nbsp;→&nbsp;<span class="step">Vive</span>&nbsp;→&nbsp;<span class="step">Comparte</span>&nbsp;→&nbsp;<span class="step">Descubre</span>
+    </div>
+    <div class="panel-block">
+      <h4>Pantallas</h4>
+      <div class="jumplist" id="jumplist"></div>
+    </div>
+    <div class="panel-block">
+      <h4>Categorías</h4>
+      <div class="legend" id="legend"></div>
+    </div>
+    <p class="credit">Prototipo navegable · redimensiona la ventana o ábrelo en tu teléfono — la interfaz se adapta a pantalla completa.</p>
+  </aside>
+
+  <div class="devicewrap">
+    <div class="device">
+      <div class="devicescreen" id="devicescreen">
+        <div class="statusbar">
+          <span>9:41</span>
+          <div style="display:flex;align-items:center;gap:5px;">
+            <svg width="16" height="11" viewBox="0 0 16 11"><path d="M1 8 L1 10 L3 10 L3 8 Z M5 6 L5 10 L7 10 L7 6 Z M9 4 L9 10 L11 10 L11 4Z M13 1 L13 10 L15 10 L15 1Z" fill="currentColor"/></svg>
+            <div class="batt"></div>
+          </div>
+        </div>
+        <div class="screenbody" id="screenbody"></div>
+        <nav class="tabbar" id="tabbar"></nav>
+        <div class="overlaylayer" id="overlayLayer"></div>
+        <div class="toast" id="toast"></div>
+        <div class="home-indicator"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+/* ---------------- icons ---------------- */
+const ICONS = {
+  home:'<path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9h5v-5.5h2V19h5v-9"/>',
+  map:'<path d="M9 4 4 6v14l5-2 6 2 5-2V4l-5 2-6-2Z" stroke-linejoin="round"/><path d="M9 4v14M15 6v14"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  trophy:'<path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" stroke-linejoin="round"/><path d="M7 5H4a3 3 0 0 0 3 4M17 5h3a3 3 0 0 1-3 4"/><path d="M12 14v3M9 21h6M9.5 17.5h5l.5 3.5H9Z" stroke-linejoin="round"/>',
+  user:'<circle cx="12" cy="8" r="3.6"/><path d="M4.8 20c1.2-4 4-6 7.2-6s6 2 7.2 6"/>',
+  search:'<circle cx="11" cy="11" r="6.4"/><path d="m20 20-4.3-4.3"/>',
+  bell:'<path d="M6 10a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z" stroke-linejoin="round"/><path d="M10 20a2 2 0 0 0 4 0"/>',
+  bookmark:'<path d="M6 4h12v16l-6-4-6 4Z" stroke-linejoin="round"/>',
+  share:'<circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="m8.3 10.7 7.4-4.4M8.3 13.3l7.4 4.4"/>',
+  chevronleft:'<path d="m15 5-7 7 7 7"/>',
+  chevronright:'<path d="m9 5 7 7-7 7"/>',
+  check:'<path d="M4 12l5 5L20 6"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  settings:'<circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V19.5a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H4.5a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.56-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H10.5a1.7 1.7 0 0 0 1-1.55V4.5a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V10.5a1.7 1.7 0 0 0 1.55 1H19.5a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1Z" stroke-linejoin="round"/>',
+  heart:'<path d="M12 20s-7.5-4.6-9.6-9.4C1 7 3 4 6.4 4c2 0 3.4 1 5.6 3.3C14.2 5 15.6 4 17.6 4 21 4 23 7 21.6 10.6 19.5 15.4 12 20 12 20Z" stroke-linejoin="round"/>',
+  comment:'<path d="M4 5h16v11H9l-5 4V5Z" stroke-linejoin="round"/>',
+  star:'<path d="m12 3 2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L12 16.9 6.4 20.1l1.4-6.3L3 9.5l6.4-.6Z" stroke-linejoin="round"/>',
+  locate:'<circle cx="12" cy="12" r="2.4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>',
+  layers:'<path d="m12 3 9 5-9 5-9-5 9-5Z" stroke-linejoin="round"/><path d="m3 13 9 5 9-5"/>',
+  camera:'<path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4Z" stroke-linejoin="round"/><circle cx="12" cy="13.5" r="3.4"/>',
+  wave:'<path d="M2 15c2 0 2-3 4-3s2 3 4 3 2-3 4-3 2 3 4 3 2-3 4-3"/><path d="M2 19c2 0 2-3 4-3s2 3 4 3 2-3 4-3 2 3 4 3 2-3 4-3"/>',
+  mountain:'<path d="m3 19 6-11 4 6 2-3 6 8Z" stroke-linejoin="round"/><circle cx="17.5" cy="6.5" r="1.6"/>',
+  skate:'<rect x="4" y="10" width="16" height="4" rx="2"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/>',
+  ball:'<circle cx="12" cy="12" r="8.4"/><path d="M12 7.5 15.5 10 14 14.2H10L8.5 10Z" stroke-linejoin="round"/><path d="M12 3.6V7.5M6 8l2.5 2M18 8l-2.5 2M8.6 20 10 14.2M15.4 20 14 14.2"/>',
+  fork:'<path d="M7 3v7a2 2 0 0 0 4 0V3M9 10v11M17 3c-1.6 0-3 1.8-3 5s1.4 5 3 5 3-1.8 3-5-1.4-5-3-5Zm0 10v8" stroke-linejoin="round"/>',
+  tent:'<path d="M3 19 12 5l9 14Z" stroke-linejoin="round"/><path d="M12 5v14M7.5 19 12 11l4.5 8"/>',
+  compass:'<circle cx="12" cy="12" r="9"/><path d="m14.8 9.2-1.6 5.6-5.6 1.6 1.6-5.6Z" stroke-linejoin="round"/>',
+  route:'<circle cx="6" cy="6" r="2.4"/><circle cx="18" cy="18" r="2.4"/><path d="M8 7c4 0 2 9 6 9M15 5c-4 0-2 6-6 6"/>',
+  flag:'<path d="M6 3v18"/><path d="M6 4h12l-3 4 3 4H6Z" stroke-linejoin="round"/>',
+  photo:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10.5" r="1.8"/><path d="m4 18 5.5-5.5L13 16l3-3 4 5"/>',
+  gift:'<rect x="4" y="9.5" width="16" height="10" rx="1.4"/><path d="M4 9.5h16v3H4z"/><path d="M12 9.5v10"/><path d="M12 9.5C9 9.5 8 8 8 6.5A2 2 0 0 1 12 5c0 1.5-1 4.5 0 4.5Zm0 0c3 0 4-1.5 4-3A2 2 0 0 0 12 5c0 1.5 1 4.5 0 4.5Z" stroke-linejoin="round"/>',
+  run:'<circle cx="14.5" cy="4.5" r="1.8"/><path d="m9 20 3-5-2-3 1-4 4 2 3 4M8 13l-3 2M17 10l3 1"/>',
+  minus:'<path d="M5 12h14"/>',
+  moto:'<circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M9 17h4l2-6h3M9 17 7 11l-3 1M13 11h3l2-3"/>',
+  fish:'<path d="M3 12c4-5 12-5 16 0-4 5-12 5-16 0Z" stroke-linejoin="round"/><path d="M19 12l3-3v6Z" stroke-linejoin="round"/><circle cx="6.6" cy="11.3" r=".6" fill="currentColor" stroke="none"/>',
+  more:'<circle cx="6" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="18" cy="12" r="1.6" fill="currentColor" stroke="none"/>',
+};
+function icon(name, cls){ return `<svg class="icon ${cls||''}" viewBox="0 0 24 24">${ICONS[name]||''}</svg>`; }
+
+/* ---------------- category palette ---------------- */
+const CATS = {
+  surf:{label:'Surf', color:'var(--water)', icon:'wave'},
+  trekking:{label:'Trekking', color:'var(--moss)', icon:'mountain'},
+  skate:{label:'Skate', color:'var(--sky)', icon:'skate'},
+  futbol:{label:'Fútbol', color:'var(--sky)', icon:'ball'},
+  comida:{label:'Gastronomía', color:'var(--accent)', icon:'fork'},
+  playas:{label:'Playas', color:'var(--sand)', icon:'wave'},
+  naturaleza:{label:'Naturaleza', color:'var(--moss)', icon:'tent'},
+  fotografia:{label:'Fotografía', color:'var(--plum)', icon:'camera'},
+  running:{label:'Running', color:'var(--sky)', icon:'run'},
+  camping:{label:'Camping', color:'var(--moss)', icon:'tent'},
+  motos:{label:'Motos', color:'var(--sky)', icon:'moto'},
+  pesca:{label:'Pesca', color:'var(--water)', icon:'fish'},
+  turismo:{label:'Turismo', color:'var(--sand)', icon:'compass'},
+  otros:{label:'Otros', color:'var(--plum)', icon:'more'},
+  montana:{label:'Montaña', color:'var(--moss)', icon:'mountain'},
+  volcan:{label:'Volcán', color:'var(--accent)', icon:'mountain'},
+  cultura:{label:'Cultura', color:'var(--sand)', icon:'flag'},
+  mirador:{label:'Mirador', color:'var(--sky)', icon:'camera'},
+  aventura:{label:'Actividades', color:'var(--sky)', icon:'run'},
+  acuaticos:{label:'Deportes acuáticos', color:'var(--water)', icon:'wave'},
+  astroturismo:{label:'Astroturismo', color:'var(--plum)', icon:'star'},
+};
+
+/* ---------------- mock data ---------------- */
+const ME = {id:'me', name:'Charly_Explorer', handle:'@charly', level:12, xp:2450, xpNext:5000, followers:1250, following:340,
+  bio:'Explorando el sur de Chile 🌎 · Antes surfista de sillón, ahora de agua.', tags:['surf','futbol','fotografia'],
+  places:47, activities:18, initials:'CE', color:'var(--accent)', verified:false, photo:null, myPhotos:[]};
+
+const USERS = {
+  valen:{id:'valen', name:'Valen_Explorer', initials:'VE', color:'var(--water)', level:15, followers:2400, bio:'Buscando la ola perfecta desde Pichilemu 🏄', tags:['surf','fotografia'], places:63, activities:29, following:180, verified:true, photo:'fotos/perfil-valen.jpg'},
+  mateo:{id:'mateo', name:'MateoTrail', initials:'MT', color:'var(--moss)', level:9, followers:860, bio:'Cerros, senderos y buenas juntas.', tags:['trekking','naturaleza'], places:31, activities:14, following:95, photo:'fotos/perfil-mateo.jpg'},
+  fer:{id:'fer', name:'FerCamina', initials:'FC', color:'var(--sand)', level:7, followers:410, bio:'Comiendo rico por todo Chile.', tags:['comida','fotografia'], places:22, activities:6, following:150, photo:'fotos/perfil-fer.jpg'},
+  javi:{id:'javi', name:'Javi_Ruta', initials:'JR', color:'var(--sky)', level:11, followers:1100, bio:'Skate y fútbol los findes.', tags:['skate','futbol'], places:38, activities:20, following:210, photo:'fotos/perfil-javi.jpg'},
+  sofi:{id:'sofi', name:'Sofi_Viajera', initials:'SV', color:'var(--plum)', level:14, followers:1900, bio:'Un mirador nuevo cada semana.', tags:['naturaleza','fotografia'], places:55, activities:22, following:260, verified:true, photo:'fotos/perfil-sofi.jpg'},
+};
+
+const PLACES = [
+  {id:'p1', name:'El Infiernillo', cat:'surf', city:'Pichilemu', rating:4.8, ratings:263, dist:'200 km', by:'valen', visitors:88, lat:-34.3897, lon:-72.0056,
+   desc:'Rompiente izquierda de clase mundial, ideal para nivel intermedio-avanzado. Mejor con marea baja y swell del suroeste.', saved:true, visited:true, photo:'fotos/lugar-p1.jpg'},
+  {id:'p2', name:'Mirador del Cóndor', cat:'trekking', city:'San Ramón, Santiago', rating:4.9, ratings:141, dist:'32 km', by:'mateo', visitors:204, lat:-33.5333, lon:-70.5333,
+   desc:'Vista completa de la cuenca de Santiago tras una subida exigente de 2 horas. Llevar agua y salir temprano.', saved:false, visited:true, photo:'fotos/lugar-p2.jpg'},
+  {id:'p3', name:'Sendero Cajón del Maipo', cat:'trekking', city:'San José de Maipo', rating:4.7, ratings:97, dist:'55 km', by:'sofi', visitors:156, lat:-33.65, lon:-70.35,
+   desc:'Recorrido junto al río hasta un mirador glaciar. Dificultad media, apto para grupos con algo de experiencia.', saved:true, visited:false, photo:'fotos/lugar-p3.jpg'},
+  {id:'p4', name:'Skatepark Bellavista', cat:'skate', city:'Santiago', rating:4.6, ratings:74, dist:'28 km', by:'javi', visitors:132, lat:-33.4300, lon:-70.6280,
+   desc:'Bowl y street plaza al aire libre, activo todas las tardes. Buena onda para principiantes también.', saved:false, visited:true, photo:'fotos/lugar-p4.jpg'},
+  {id:'p5', name:'La Esquina de Valpo', cat:'comida', city:'Valparaíso', rating:4.9, ratings:312, dist:'96 km', by:'fer', visitors:410, lat:-33.0458, lon:-71.6197,
+   desc:'Cocina de mercado con vista al puerto. La sopa marinera del día siempre vale la pena.', saved:true, visited:false, photo:'fotos/lugar-p5.jpg'},
+  {id:'p6', name:'Playa Grande de Concón', cat:'playas', city:'Concón', rating:4.8, ratings:189, dist:'104 km', by:'valen', visitors:301, lat:-32.9270, lon:-71.5310,
+   desc:'Extensa playa de arena fina, buena para caminatas largas y atardeceres.', saved:false, visited:false},
+  {id:'p7', name:'Termas Escondidas', cat:'naturaleza', city:'Cajón del Maipo', rating:4.7, ratings:58, dist:'62 km', by:'sofi', visitors:67, lat:-33.75, lon:-70.28,
+   desc:'Pozones naturales alimentados por una vertiente. Acceso caminando 40 minutos desde el estacionamiento.', saved:true, visited:false},
+  {id:'p8', name:'Cancha Techada Ñuñoa', cat:'futbol', city:'Ñuñoa, Santiago', rating:4.5, ratings:120, dist:'30 km', by:'javi', visitors:98, lat:-33.4560, lon:-70.5990,
+   desc:'Cancha de fútbol 7 techada, arriendo por hora. Se arman pichangas abiertas los martes.', saved:false, visited:true},
+  {id:'p9', name:'Valle de la Luna', cat:'naturaleza', city:'San Pedro de Atacama', rating:4.9, ratings:522, dist:'1.650 km', by:'sofi', visitors:640, lat:-22.9098, lon:-68.2827,
+   desc:'Formaciones de sal y arcilla que parecen otro planeta. El mejor momento es el atardecer, cuando el valle se pone rosado.', saved:false, visited:false, photo:'fotos/lugar-p9.jpg'},
+  {id:'p10', name:'Mirador Torres del Paine', cat:'trekking', city:'Parque Nacional Torres del Paine', rating:5.0, ratings:301, dist:'3.050 km', by:'mateo', visitors:412,
+   lat:-50.9423, lon:-73.0369, desc:'La vista clásica de las tres torres de granito sobre la laguna. Se llega tras una caminata exigente de día completo.', saved:false, visited:false, photo:'fotos/lugar-p10.jpg'},
+
+  /* ---- lugares destacados de Chile (coordenadas reales via Nominatim/OpenStreetMap) ---- */
+  {id:'cl1', name:'Cerro Manquehue', cat:'montana', cats:['montana','trekking','mirador'], city:'Vitacura, Santiago', rating:4.8, ratings:85, dist:'11 km', by:'fer', visitors:155, lat:-33.356616, lon:-70.593166,
+   desc:'Cerro emblemático del sector oriente de Santiago, con una subida exigente de un par de horas y vistas de 360° de la cordillera y la ciudad.', saved:false, visited:false, photo:'fotos/lugar-cl1.jpg'},
+  {id:'cl2', name:'Cerro San Cristóbal', cat:'montana', cats:['montana','mirador','naturaleza'], city:'Recoleta, Santiago', rating:4.6, ratings:164, dist:'17 km', by:'sofi', visitors:74, lat:-33.420344, lon:-70.629896,
+   desc:'El gran parque urbano de Santiago, con funicular, teleférico y senderos hasta el Santuario de la Inmaculada Concepción.', saved:false, visited:false, photo:'fotos/lugar-cl2.jpg'},
+  {id:'cl3', name:'Sky Costanera', cat:'mirador', cats:['mirador','cultura'], city:'Providencia, Santiago', rating:4.8, ratings:92, dist:'17 km', by:'valen', visitors:77, lat:-33.416722, lon:-70.606835,
+   desc:'Mirador en el piso 61-62 de la torre más alta de Sudamérica, con vista panorámica de Santiago y la cordillera de los Andes.', saved:false, visited:false, photo:'fotos/lugar-cl3.jpg'},
+  {id:'cl4', name:'Cajón del Maipo', cat:'trekking', cats:['trekking','naturaleza'], city:'San José de Maipo', rating:4.6, ratings:577, dist:'80 km', by:'sofi', visitors:43, lat:-33.833630, lon:-70.116288,
+   desc:'Valle cordillerano a las puertas de Santiago, punto de partida para senderos, termas y montañismo.', saved:false, visited:false},
+  {id:'cl5', name:'Embalse El Yeso', cat:'naturaleza', cats:['naturaleza','trekking'], city:'San José de Maipo', rating:4.8, ratings:618, dist:'67 km', by:'javi', visitors:142, lat:-33.651070, lon:-70.081035,
+   desc:'Laguna artificial de aguas turquesa rodeada de montañas, uno de los paisajes más fotografiados de la Región Metropolitana.', saved:false, visited:false, photo:'fotos/lugar-cl5.jpg'},
+  {id:'cl6', name:'Valle Nevado', cat:'montana', cats:['montana','aventura'], city:'Cordillera de Santiago', rating:4.7, ratings:344, dist:'38 km', by:'valen', visitors:418, lat:-33.354348, lon:-70.249156,
+   desc:'Centro de esquí y montaña a 46 km de Santiago, con pistas de nivel internacional y vistas de alta cordillera.', saved:false, visited:false},
+  {id:'cl7', name:'Farellones', cat:'montana', cats:['montana','aventura'], city:'Cordillera de Santiago', rating:4.9, ratings:492, dist:'32 km', by:'fer', visitors:172, lat:-33.350796, lon:-70.312941,
+   desc:'Pueblo de montaña puerta de entrada a los centros de esquí de la zona central, con trekking y actividades todo el año.', saved:false, visited:false, photo:'fotos/lugar-cl7.jpg'},
+  {id:'cl8', name:'Viña del Mar', cat:'playas', cats:['playas','cultura'], city:'Viña del Mar', rating:4.6, ratings:404, dist:'89 km', by:'valen', visitors:77, lat:-33.024453, lon:-71.551764,
+   desc:'La \'Ciudad Jardín\', con extensas playas, el Reloj de Flores y una animada vida cultural en la costa central.', saved:false, visited:false, photo:'fotos/lugar-cl8.jpg'},
+  {id:'cl9', name:'Valparaíso', cat:'cultura', cats:['cultura','mirador'], city:'Valparaíso', rating:4.7, ratings:427, dist:'95 km', by:'fer', visitors:339, lat:-33.037466, lon:-71.627097,
+   desc:'Puerto patrimonial de la UNESCO, de cerros, ascensores históricos y arte callejero con vista a la bahía.', saved:false, visited:false, photo:'fotos/lugar-cl9.jpg'},
+  {id:'cl10', name:'Dunas de Concón', cat:'naturaleza', cats:['naturaleza','playas'], city:'Concón', rating:4.6, ratings:104, dist:'90 km', by:'javi', visitors:304, lat:-32.922004, lon:-71.515957,
+   desc:'Gigantescas dunas de arena junto al mar, un paisaje desértico costero único a minutos de Viña del Mar.', saved:false, visited:false},
+  {id:'cl11', name:'Roca Oceánica', cat:'mirador', cats:['mirador','naturaleza'], city:'Concón', rating:4.6, ratings:447, dist:'92 km', by:'valen', visitors:312, lat:-32.941379, lon:-71.554105,
+   desc:'Mirador natural sobre acantilados donde el río Aconcagua se encuentra con el océano Pacífico.', saved:false, visited:false},
+  {id:'cl12', name:'Pichilemu', cat:'surf', cats:['surf','playas'], city:'Pichilemu', rating:4.6, ratings:430, dist:'176 km', by:'sofi', visitors:128, lat:-34.385169, lon:-72.004661,
+   desc:'Capital chilena del surf, con olas de nivel mundial y un ambiente costero relajado.', saved:false, visited:false},
+  {id:'cl13', name:'Playa La Puntilla', cat:'playas', cats:['playas','surf'], city:'Pichilemu', rating:4.9, ratings:106, dist:'177 km', by:'mateo', visitors:425, lat:-34.381499, lon:-72.015424,
+   desc:'Playa principal de Pichilemu, ideal para iniciarse en el surf y disfrutar del atardecer.', saved:false, visited:false},
+  {id:'cl14', name:'Punta de Lobos', cat:'surf', cats:['surf','mirador'], city:'Pichilemu', rating:4.6, ratings:141, dist:'182 km', by:'mateo', visitors:473, lat:-34.429275, lon:-72.037568,
+   desc:'Una de las mejores rompientes de Sudamérica, con un acantilado icónico y atardeceres inolvidables.', saved:false, visited:false},
+  {id:'cl15', name:'San Pedro de Atacama', cat:'cultura', cats:['cultura','astroturismo'], city:'San Pedro de Atacama', rating:4.6, ratings:344, dist:'1.135 km', by:'javi', visitors:355, lat:-23.354549, lon:-67.902657,
+   desc:'Oasis y pueblo ancestral en pleno desierto de Atacama, puerta de entrada a los principales atractivos del altiplano.', saved:false, visited:false},
+  {id:'cl16', name:'Valle de la Luna', cat:'naturaleza', cats:['naturaleza','mirador','astroturismo'], city:'San Pedro de Atacama', rating:4.9, ratings:226, dist:'1.172 km', by:'fer', visitors:211, lat:-22.931621, lon:-68.308723,
+   desc:'Formaciones de sal y arcilla que recuerdan un paisaje lunar; el atardecer tiñe el valle de tonos rosados.', saved:false, visited:false, photo:'fotos/lugar-cl16.jpg'},
+  {id:'cl17', name:'Géiseres del Tatio', cat:'naturaleza', cats:['naturaleza','astroturismo'], city:'San Pedro de Atacama', rating:4.6, ratings:333, dist:'1.243 km', by:'valen', visitors:341, lat:-22.341705, lon:-68.011710,
+   desc:'El campo geotérmico más alto del mundo, mejor visitado al amanecer cuando las fumarolas son más intensas.', saved:false, visited:false, photo:'fotos/lugar-cl17.jpg'},
+  {id:'cl18', name:'Piedras Rojas', cat:'naturaleza', cats:['naturaleza','mirador'], city:'San Pedro de Atacama', rating:4.8, ratings:606, dist:'1.079 km', by:'mateo', visitors:113, lat:-23.921325, lon:-67.696400,
+   desc:'Salar y laguna altiplánica bordeada de formaciones rocosas rojizas a más de 4.000 msnm.', saved:false, visited:false},
+  {id:'cl19', name:'Lagunas Altiplánicas', cat:'naturaleza', cats:['naturaleza'], city:'San Pedro de Atacama', rating:4.7, ratings:336, dist:'1.098 km', by:'sofi', visitors:142, lat:-23.727452, lon:-67.766912,
+   desc:'Las lagunas Miscanti y Miñiques, de un azul profundo enmarcadas por volcanes, en plena Reserva Los Flamencos.', saved:false, visited:false},
+  {id:'cl20', name:'Salar de Atacama', cat:'naturaleza', cats:['naturaleza'], city:'San Pedro de Atacama', rating:4.8, ratings:117, dist:'1.124 km', by:'mateo', visitors:450, lat:-23.383623, lon:-68.256672,
+   desc:'El mayor salar de Chile, hogar de flamencos andinos y paisajes de una blancura extrema.', saved:false, visited:false},
+  {id:'cl21', name:'Termas de Puritama', cat:'naturaleza', cats:['naturaleza'], city:'San Pedro de Atacama', rating:4.5, ratings:383, dist:'1.201 km', by:'javi', visitors:167, lat:-22.720034, lon:-68.043532,
+   desc:'Ocho pozones de aguas termales naturales en una quebrada del desierto, rodeadas de vegetación.', saved:false, visited:false},
+  {id:'cl22', name:'La Portada', cat:'naturaleza', cats:['naturaleza','mirador'], city:'Antofagasta', rating:4.5, ratings:382, dist:'1.087 km', by:'mateo', visitors:365, lat:-23.498753, lon:-70.424423,
+   desc:'Monumento natural con un arco rocoso emblemático esculpido por el mar frente a la costa de Antofagasta.', saved:false, visited:false, photo:'fotos/lugar-cl22.jpg'},
+  {id:'cl23', name:'Morro de Arica', cat:'mirador', cats:['mirador','cultura'], city:'Arica', rating:4.7, ratings:529, dist:'1.645 km', by:'mateo', visitors:165, lat:-18.480088, lon:-70.324026,
+   desc:'Promontorio histórico que domina la ciudad de Arica, con museo y vistas al océano y al valle de Azapa.', saved:false, visited:false, photo:'fotos/lugar-cl23.jpg'},
+  {id:'cl24', name:'Lago Chungará', cat:'naturaleza', cats:['naturaleza','montana'], city:'Parque Nacional Lauca', rating:4.6, ratings:611, dist:'1.670 km', by:'fer', visitors:412, lat:-18.310846, lon:-69.135747,
+   desc:'Uno de los lagos navegables más altos del mundo, a los pies del volcán Parinacota.', saved:false, visited:false, photo:'fotos/lugar-cl24.jpg'},
+  {id:'cl25', name:'Parque Nacional Lauca', cat:'naturaleza', cats:['naturaleza','trekking'], city:'Región de Arica y Parinacota', rating:4.8, ratings:468, dist:'1.675 km', by:'fer', visitors:142, lat:-18.261353, lon:-69.291206,
+   desc:'Altiplano chileno con volcanes, vicuñas y bofedales, Reserva de la Biósfera de la UNESCO.', saved:false, visited:false},
+  {id:'cl26', name:'Pucón', cat:'aventura', cats:['aventura','naturaleza'], city:'Pucón', rating:5.0, ratings:201, dist:'678 km', by:'sofi', visitors:282, lat:-39.273117, lon:-71.977761,
+   desc:'Capital turística de la Araucanía, entre el volcán Villarrica y el lago del mismo nombre.', saved:false, visited:false},
+  {id:'cl27', name:'Volcán Villarrica', cat:'volcan', cats:['volcan','trekking'], city:'Pucón', rating:4.5, ratings:108, dist:'693 km', by:'valen', visitors:108, lat:-39.421025, lon:-71.939563,
+   desc:'Uno de los volcanes activos más visitados de Chile, con ascensiones guiadas hasta el cráter humeante.', saved:false, visited:false, photo:'fotos/lugar-cl27.jpg'},
+  {id:'cl28', name:'Lago Villarrica', cat:'naturaleza', cats:['naturaleza','acuaticos'], city:'Villarrica', rating:4.8, ratings:492, dist:'678 km', by:'sofi', visitors:62, lat:-39.255332, lon:-72.085733,
+   desc:'Lago cordillerano rodeado de volcanes, ideal para deportes acuáticos y playas de arena volcánica.', saved:false, visited:false},
+  {id:'cl29', name:'Frutillar', cat:'cultura', cats:['cultura','naturaleza'], city:'Frutillar', rating:4.7, ratings:539, dist:'899 km', by:'sofi', visitors:158, lat:-41.125846, lon:-73.060474,
+   desc:'Pueblo de raíces alemanas a orillas del lago Llanquihue, con el volcán Osorno de telón de fondo.', saved:false, visited:false, photo:'fotos/lugar-cl29.jpg'},
+  {id:'cl30', name:'Puerto Varas', cat:'cultura', cats:['cultura','naturaleza'], city:'Puerto Varas', rating:5.0, ratings:71, dist:'918 km', by:'valen', visitors:379, lat:-41.317802, lon:-72.982907,
+   desc:'La \'Ciudad de las Rosas\', centro turístico de la región de los lagos frente al volcán Osorno.', saved:false, visited:false},
+  {id:'cl31', name:'Lago Llanquihue', cat:'naturaleza', cats:['naturaleza','acuaticos'], city:'Región de los Lagos', rating:4.9, ratings:333, dist:'896 km', by:'fer', visitors:87, lat:-41.142990, lon:-72.806201,
+   desc:'El segundo lago más grande de Chile, con vistas a los volcanes Osorno y Calbuco.', saved:false, visited:false},
+  {id:'cl32', name:'Saltos del Petrohué', cat:'naturaleza', cats:['naturaleza','mirador'], city:'Parque Nacional Vicente Pérez Rosales', rating:4.6, ratings:221, dist:'893 km', by:'javi', visitors:31, lat:-41.173196, lon:-72.450234,
+   desc:'Cascadas de roca volcánica sobre el río Petrohué, con el volcán Osorno como telón de fondo.', saved:false, visited:false, photo:'fotos/lugar-cl32.jpg'},
+  {id:'cl33', name:'Parque Nacional Vicente Pérez Rosales', cat:'trekking', cats:['trekking','naturaleza'], city:'Región de los Lagos', rating:5.0, ratings:329, dist:'876 km', by:'sofi', visitors:420, lat:-41.059824, lon:-72.169008,
+   desc:'El parque nacional más antiguo de Chile, con bosque nativo, lagos y el volcán Osorno.', saved:false, visited:false},
+  {id:'cl34', name:'Castro', cat:'cultura', cats:['cultura'], city:'Isla de Chiloé', rating:4.6, ratings:168, dist:'1.060 km', by:'fer', visitors:460, lat:-42.482375, lon:-73.764292,
+   desc:'Capital de Chiloé, famosa por sus palafitos coloridos y sus iglesias de madera Patrimonio de la Humanidad.', saved:false, visited:false},
+  {id:'cl35', name:'Parque Nacional Chiloé', cat:'trekking', cats:['trekking','naturaleza'], city:'Isla de Chiloé', rating:4.8, ratings:263, dist:'1.067 km', by:'mateo', visitors:221, lat:-42.472561, lon:-74.096615,
+   desc:'Bosque valdiviano y dunas costeras en la costa oeste de la isla grande de Chiloé.', saved:false, visited:false},
+  {id:'cl36', name:'Puerto Natales', cat:'cultura', cats:['cultura','aventura'], city:'Puerto Natales', rating:4.9, ratings:612, dist:'2.058 km', by:'sofi', visitors:500, lat:-51.726200, lon:-72.505998,
+   desc:'Puerta de entrada a Torres del Paine, a orillas del fiordo Última Esperanza.', saved:false, visited:false},
+  {id:'cl37', name:'Parque Nacional Torres del Paine', cat:'trekking', cats:['trekking','naturaleza','montana'], city:'Última Esperanza', rating:4.5, ratings:391, dist:'1.985 km', by:'javi', visitors:39, lat:-51.040578, lon:-72.984525,
+   desc:'Uno de los parques nacionales más espectaculares del mundo, con torres de granito, glaciares y estepa patagónica.', saved:false, visited:false, photo:'fotos/lugar-cl37.jpg'},
+  {id:'cl38', name:'Mirador Base Las Torres', cat:'trekking', cats:['trekking','mirador'], city:'Torres del Paine', rating:4.6, ratings:431, dist:'1.974 km', by:'fer', visitors:152, lat:-50.942668, lon:-72.949663,
+   desc:'El mirador más icónico del parque: las tres torres de granito reflejadas en una laguna glaciar, tras un día completo de caminata.', saved:false, visited:false, photo:'fotos/lugar-cl38.jpg'},
+  {id:'cl39', name:'Lago Grey', cat:'naturaleza', cats:['naturaleza','acuaticos'], city:'Torres del Paine', rating:4.5, ratings:140, dist:'1.987 km', by:'valen', visitors:404, lat:-51.045797, lon:-73.169713,
+   desc:'Lago glaciar de aguas turquesa con témpanos de hielo desprendidos del glaciar Grey.', saved:false, visited:false, photo:'fotos/lugar-cl39.jpg'},
+  {id:'cl40', name:'Glaciar Grey', cat:'naturaleza', cats:['naturaleza'], city:'Torres del Paine', rating:4.7, ratings:130, dist:'1.982 km', by:'sofi', visitors:422, lat:-50.997273, lon:-73.234699,
+   desc:'Uno de los principales glaciares del Campo de Hielo Sur, visible desde el lago y senderos del parque.', saved:false, visited:false, photo:'fotos/lugar-cl40.jpg'},
+  {id:'cl41', name:'Valle del Francés', cat:'trekking', cats:['trekking','naturaleza'], city:'Torres del Paine', rating:4.6, ratings:546, dist:'1.981 km', by:'sofi', visitors:114, lat:-50.999399, lon:-73.054772,
+   desc:'Valle central del circuito W, con vistas al glaciar colgante y a los Cuernos del Paine.', saved:false, visited:false},
+  {id:'cl42', name:'Cuernos del Paine', cat:'montana', cats:['montana','mirador'], city:'Torres del Paine', rating:4.6, ratings:493, dist:'1.977 km', by:'mateo', visitors:505, lat:-50.977946, lon:-72.884783,
+   desc:'Formación de granito y sedimento oscuro, una de las siluetas montañosas más reconocibles de la Patagonia.', saved:false, visited:false, photo:'fotos/lugar-cl42.jpg'},
+  {id:'cl43', name:'Villa Cerro Castillo', cat:'trekking', cats:['trekking','naturaleza'], city:'Región de Aysén', rating:4.8, ratings:265, dist:'1.435 km', by:'fer', visitors:234, lat:-46.122616, lon:-72.154366,
+   desc:'Pueblo al pie del imponente cerro Castillo, con uno de los treks más espectaculares de la Carretera Austral.', saved:false, visited:false, photo:'fotos/lugar-cl43.jpg'},
+  {id:'cl44', name:'Carretera Austral', cat:'aventura', cats:['aventura','naturaleza'], city:'Región de Aysén', rating:5.0, ratings:442, dist:'1.488 km', by:'javi', visitors:490, lat:-46.564416, lon:-72.712545,
+   desc:'Ruta escénica de más de 1.200 km entre bosques, fiordos y glaciares en la Patagonia chilena.', saved:false, visited:false, photo:'fotos/lugar-cl44.jpg'},
+  {id:'cl45', name:'Capillas de Mármol', cat:'naturaleza', cats:['naturaleza','acuaticos','mirador'], city:'Puerto Río Tranquilo', rating:4.8, ratings:183, dist:'1.498 km', by:'mateo', visitors:145, lat:-46.658862, lon:-72.628420,
+   desc:'Formaciones de mármol esculpidas por el lago General Carrera, visitables en bote o kayak.', saved:false, visited:false, photo:'fotos/lugar-cl45.jpg'},
+];
+
+const POSTS = [
+  {id:'post1', user:'valen', place:'p1', cat:'surf', time:'hace 2 h', caption:'Sesión de surf en Pichilemu 🌊 el agua estaba perfecta esta mañana, tabla nueva estrenada.', likes:86, comments:12, liked:false, photo:'fotos/feed-post1.jpg'},
+  {id:'post2', user:'mateo', place:'p2', cat:'trekking', time:'hace 5 h', caption:'Subimos hasta el mirador antes del amanecer. La vista de Santiago despertando no tiene precio.', likes:214, comments:31, liked:true, photo:'fotos/feed-post2.jpg'},
+  {id:'post3', user:'me', place:'p4', cat:'skate', time:'ayer', caption:'Primera vez completando un 50-50 en el rail grande del Bellavista. De a poco.', likes:57, comments:9, liked:false, photo:'fotos/feed-post3.jpg'},
+  {id:'post4', user:'fer', place:'p5', cat:'comida', time:'hace 1 día', caption:'Ruta gastronómica por Valparaíso, parada obligada en La Esquina. Empanada de mariscos 10/10.', likes:132, comments:18, liked:false, photo:'fotos/feed-post4.jpg'},
+  {id:'post5', user:'sofi', place:'p7', cat:'naturaleza', time:'hace 2 días', caption:'Encontramos estas termas casi vacías un martes en la tarde. Se las paso porque confío en ustedes.', likes:301, comments:44, liked:true, photo:'fotos/feed-post5.jpg'},
+  {id:'post6', user:'javi', place:'p8', cat:'futbol', time:'hace 3 días', caption:'Pichanga de los martes completa de nuevo. Nos falta un arquero fijo, ¿se suma alguien?', likes:41, comments:15, liked:false, photo:'fotos/feed-post6.jpg'},
+];
+
+const CHALLENGES = [
+  {id:'c1', title:'Descubre 5 playas de Chile', cat:'playas', total:5, done:2, reward:'+500 XP · Insignia Costero', steps:[
+    {label:'Playa Grande de Concón', done:true},{label:'El Infiernillo, Pichilemu', done:true},{label:'Playa Las Cujas, Los Vilos', done:false},
+    {label:'Playa Blanca, Papudo', done:false},{label:'Cavancha, Iquique', done:false}]},
+  {id:'c2', title:'Prueba 3 deportes nuevos', cat:'skate', total:3, done:1, reward:'+350 XP · Insignia Multideporte', steps:[
+    {label:'Sesión de skate', done:true},{label:'Clase de surf', done:false},{label:'Ruta en bicicleta', done:false}]},
+  {id:'c3', title:'Visita 3 miradores al atardecer', cat:'trekking', total:3, done:3, reward:'+300 XP · Insignia Atardeceres', steps:[
+    {label:'Mirador del Cóndor', done:true},{label:'Cerro San Cristóbal', done:true},{label:'Mirador Cajón del Maipo', done:true}]},
+];
+
+const EXPERIENCES = [
+  {id:'e1', title:'Surf en Pichilemu', cat:'surf', place:'El Infiernillo', diff:'Intermedio', people:34},
+  {id:'e2', title:'Trekking Cajón del Maipo', cat:'trekking', place:'Sendero glaciar', diff:'Medio', people:21},
+  {id:'e3', title:'Skate session Bellavista', cat:'skate', place:'Skatepark Bellavista', diff:'Todo nivel', people:18},
+  {id:'e4', title:'Ruta gastronómica porteña', cat:'comida', place:'Valparaíso centro', diff:'Fácil', people:12},
+  {id:'e5', title:'Amanecer en el Cóndor', cat:'trekking', place:'San Ramón', diff:'Exigente', people:9},
+];
+
+const NOTIFS = [
+  {icon:'heart', color:'var(--accent)', txt:'<b>Valen_Explorer</b> y 84 personas más le dieron like a tu publicación en Skatepark Bellavista', time:'hace 10 min'},
+  {icon:'trophy', color:'var(--sand)', txt:'Desbloqueaste la insignia <b>Atardeceres</b> por completar tu desafío', time:'hace 2 h'},
+  {icon:'user', color:'var(--water)', txt:'<b>Sofi_Viajera</b> empezó a seguirte', time:'hace 3 h'},
+  {icon:'comment', color:'var(--sky)', txt:'<b>MateoTrail</b> comentó: "esa vista se ve increíble, ¿qué sendero es?"', time:'hace 6 h'},
+  {icon:'flag', color:'var(--moss)', txt:'3 amigos estuvieron cerca de un lugar que guardaste: Termas Escondidas', time:'ayer'},
+];
+
+/* ---------------- state ---------------- */
+const S = {
+  stage:'onboarding', obStep:'splash', interests:new Set(['surf','futbol']),
+  tab:'inicio', profileTab:'posts', placeTab:'info',
+  mapFilter:'todos', mapSelected:null, activeChallenge:null, activeExp:null, viewingUser:null,
+  createType:null, reportOpen:false, draft:{photo:null},
+  overlays:[],
+  privateAcc:false, approxLoc:true, pushNotif:true,
+  verifyStep:'intro',
+  mapView:null, liveLoc:null,
+  authView:'login', authBusy:false, authError:'', authPhoto:null,
+};
+
+/* ---------------- Chile geo projection (illustrative, not survey-accurate) ---------------- */
+const LAGUNA_CHICUREO = { lat:-33.2717, lon:-70.6469 };
+
+/* ---------------- persistence (localStorage now; swap for a real backend later) ----------------
+   Everything user-generated funnels through persistData()/loadPersistedData() below. To move to a
+   real API/DB: replace the body of these two functions with fetch() calls against your backend and
+   keep every call site (renderOverlays()) untouched. */
+const STORAGE_KEY = 'rupu_app_data_v1';
+/* ---------------- Supabase (backend real: auth + base de datos + fotos) ----------------
+   Beta multiusuario de Rüpü. La URL y la llave de abajo son PÚBLICAS a propósito (llave
+   'publishable', pensada para ir en el navegador); el acceso real está protegido por las
+   políticas de seguridad (RLS) configuradas en la base de datos, no por ocultar la llave. */
+const SUPABASE_URL = 'https://ccfqppivdhqrgsbgbtec.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_aQA0SPCQiHRjYtPjh1EpSw_exjGODWy';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let CURRENT_UID = null;
+
+function isRealId(id){ return typeof id==='string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id); }
+
+async function uploadToStorage(bucket, path, dataUrl){
+  const res = await fetch(dataUrl);
+  const blob = await res.blob();
+  const { error } = await sb.storage.from(bucket).upload(path, blob, { contentType: blob.type || 'image/jpeg', upsert: true });
+  if(error) throw error;
+  const { data } = sb.storage.from(bucket).getPublicUrl(path);
+  return data.publicUrl;
+}
+
+function profileToLocal(p, isMe){
+  const initials = (p.name||p.username||'?').trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase() || '?';
+  return {
+    id: isMe ? 'me' : p.id,
+    name: p.name || p.username, handle: '@'+p.username, bio: p.bio || '',
+    tags: [], places: 0, activities: 0, followers: 0, following: 0,
+    initials, color: 'var(--accent)', verified: false, photo: p.avatar_url || null,
+    level: p.level||1, xp: p.xp||0, xpNext: 5000,
+  };
+}
+
+/* Carga todo lo real desde Supabase y lo mezcla con los datos locales (demo) sin borrarlos:
+   PLACES/POSTS curados (p1-p10, cl1-cl45, post1-post6) siguen igual; esto SUMA lo real. */
+async function loadAllData(){
+  const [{data: profiles}, {data: placesRows}, {data: postsRows}, {data: likesRows}, {data: followsRows}, {data: myPhotosRows}] = await Promise.all([
+    sb.from('profiles').select('*'),
+    sb.from('places').select('*').not('created_by', 'is', null),
+    sb.from('posts').select('*, likes(count), comments(count)').order('created_at', {ascending:false}),
+    sb.from('likes').select('post_id').eq('user_id', CURRENT_UID),
+    sb.from('follows').select('followee_id').eq('follower_id', CURRENT_UID),
+    sb.from('my_photos').select('*').eq('user_id', CURRENT_UID).order('created_at', {ascending:false}),
+  ]);
+
+  (profiles||[]).forEach(p=>{
+    if(p.id===CURRENT_UID) Object.assign(ME, profileToLocal(p, true));
+    else USERS[p.id] = profileToLocal(p, false);
+  });
+
+  ME.myPhotos = (myPhotosRows||[]).map(r=>({id:r.id, url:r.url, createdAt: new Date(r.created_at).getTime()}));
+
+  (placesRows||[]).forEach(r=>{
+    if(PLACES.find(p=>p.id===r.id)) return;
+    PLACES.push({
+      id:r.id, name:r.name, cat:r.cat, cats:(r.cats&&r.cats.length)?r.cats:[r.cat], city:r.city||'',
+      rating:0, ratings:0, dist:'—', by:r.created_by, visitors:1,
+      lat:r.lat, lon:r.lon, desc:r.description||'', photo:r.photo_url||null, saved:false, visited:false,
+    });
+  });
+
+  const likedSet = new Set((likesRows||[]).map(r=>r.post_id));
+  S.following = new Set((followsRows||[]).map(r=>r.followee_id));
+
+  const realPosts = (postsRows||[]).map(r=>{
+    const likeCount = (r.likes && r.likes[0] && r.likes[0].count) || 0;
+    const commentCount = (r.comments && r.comments[0] && r.comments[0].count) || 0;
+    const ts = new Date(r.created_at).getTime();
+    return {
+      id:r.id, user: r.user_id===CURRENT_UID ? 'me' : r.user_id, place:r.place_id, cat:r.cat||'naturaleza',
+      createdAt: ts, time: relTime(ts), caption: r.caption||'', likes: likeCount, comments: commentCount,
+      liked: likedSet.has(r.id), saved:false, photo: r.photo_url,
+      locationText: r.location_text, geo: (r.lat!=null && r.lon!=null) ? {lat:r.lat, lon:r.lon, name:r.location_text} : null,
+    };
+  });
+  realPosts.sort((a,b)=>b.createdAt-a.createdAt);
+  const existingIds = new Set(POSTS.map(p=>p.id));
+  POSTS.unshift(...realPosts.filter(p=>!existingIds.has(p.id)));
+}
+
+async function fetchComments(postId){
+  const { data, error } = await sb.from('comments').select('*, profiles(name, username, avatar_url)').eq('post_id', postId).order('created_at', {ascending:true});
+  if(error){ console.warn('Rüpü: no se pudieron cargar comentarios', error); return []; }
+  return (data||[]).map(r=>{
+    const prof = r.profiles || {};
+    const dispName = prof.name || prof.username || 'Usuario';
+    return { ...r, _name: dispName, _photo: prof.avatar_url || null, _initials: dispName.trim().slice(0,2).toUpperCase() };
+  });
+}
+
+function renderComments(postId){
+  const list = (S._commentsCache && S._commentsCache[postId]) || [];
+  const loading = !(S._commentsCache && postId in S._commentsCache);
+  return `<div class="sheethead"><button class="backbtn" data-act="close-overlay">${icon('chevronleft','icon-sm')}</button><h3>Comentarios</h3></div>
+  <div class="sheet-scroll" id="commentsList">
+    ${loading ? `<div class="geosuggest-loading"><span class="spinner"></span> Cargando comentarios…</div>` :
+      (list.length ? list.map(c=>`<div class="listrow" style="align-items:flex-start;">
+        <div class="avatar" style="width:32px;height:32px;font-size:11px;background:var(--raised-2);flex:none;overflow:hidden;">${c._photo?`<img src="${c._photo}" style="width:100%;height:100%;object-fit:cover;">`:c._initials}</div>
+        <div class="txt"><b>${c._name}</b><span style="display:block;color:var(--text);margin-top:2px;">${(c.body||'').replace(/</g,'&lt;')}</span><span style="font-size:11px;">${relTime(new Date(c.created_at).getTime())}</span></div>
+      </div>`).join('') : `<div class="geosuggest-empty">${icon('comment','icon-sm')} Sé el primero en comentar.</div>`)}
+  </div>
+  <div class="field" style="display:flex;gap:8px;align-items:center;padding:12px 18px;border-top:1px solid var(--line-soft);">
+    <input id="commentInput" placeholder="Escribe un comentario…" style="flex:1;background:var(--raised);border:1px solid var(--line);border-radius:100px;padding:11px 16px;color:var(--text);font-size:13.5px;">
+    <button class="iconbtn" data-act="send-comment" data-id="${postId}" style="background:var(--accent);flex:none;">${icon('check','icon-sm')}</button>
+  </div>`;
+}
+async function openComments(postId){
+  if(!CURRENT_UID){ toast('Inicia sesión para comentar'); return; }
+  pushOverlay('full', ()=>renderComments(postId));
+  const rows = await fetchComments(postId);
+  S._commentsCache = S._commentsCache || {};
+  S._commentsCache[postId] = rows;
+  refreshTop(()=>renderComments(postId));
+}
+
+function authPhotoAreaHTML(){
+  if(S.authPhoto) return `<div class="photopreviewbox" style="height:120px;background-image:url('${S.authPhoto}');">
+    <button class="removephoto" data-act="auth-remove-photo" type="button">${icon('x','icon-sm')}</button>
+  </div>`;
+  return `<div class="uploadrow"><label class="uploadopt" for="authPhotoInput">${icon('photo')}<span>Elegir foto</span></label></div>`;
+}
+
+function renderAuth(){
+  const view = S.authView || 'login';
+  const errHTML = S.authError ? `<div class="geosuggest-empty" style="margin-bottom:14px;">${icon('x','icon-sm')} ${S.authError}</div>` : '';
+  if(view==='login'){
+    return `<div class="obwrap"><div class="ob-scroll">
+      <div class="eyebrow ob-eyebrow">Bienvenido de vuelta</div>
+      <h2>Inicia sesión</h2>
+      <p class="sub">Entra con tu cuenta de Rüpü para ver y compartir con el resto del grupo.</p>
+      ${errHTML}
+      <div class="field"><label>Correo</label><input id="authEmail" type="email" autocomplete="email" placeholder="correo@ejemplo.com"></div>
+      <div class="field"><label>Contraseña</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Tu contraseña"></div>
+      <div class="field" style="padding-top:4px;"><button class="btn btn-accent btn-block" data-act="do-login" ${S.authBusy?'disabled':''}>${S.authBusy?'Entrando…':'Entrar'}</button></div>
+      <p class="sub" style="text-align:center;margin-top:18px;">¿No tienes cuenta? <a href="#" data-act="auth-switch" data-view="register" style="color:var(--accent);">Regístrate</a></p>
+    </div></div>`;
+  }
+  return `<div class="obwrap"><div class="ob-scroll">
+    <div class="eyebrow ob-eyebrow">Únete a Rüpü</div>
+    <h2>Crea tu cuenta</h2>
+    <p class="sub">Beta privada — tu perfil, fotos y publicaciones quedan guardados y los puede ver el resto del grupo de prueba.</p>
+    ${errHTML}
+    <div class="field"><label>Foto de perfil (opcional)</label></div>
+    <div id="authPhotoArea">${authPhotoAreaHTML()}</div>
+    <input type="file" accept="image/*" id="authPhotoInput" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
+    <div class="field"><label>Nombre</label><input id="authName" placeholder="Tu nombre"></div>
+    <div class="field"><label>Usuario</label><input id="authUsername" placeholder="sin espacios, ej: charly23"></div>
+    <div class="field"><label>Correo</label><input id="authEmail2" type="email" autocomplete="email" placeholder="correo@ejemplo.com"></div>
+    <div class="field"><label>Contraseña</label><input id="authPassword2" type="password" autocomplete="new-password" placeholder="Mínimo 6 caracteres"></div>
+    <div class="field" style="display:flex;align-items:flex-start;gap:10px;">
+      <input type="checkbox" id="authTerms" style="margin-top:3px;flex:none;width:16px;height:16px;">
+      <label for="authTerms" style="font-size:12px;color:var(--text-dim);flex:1;display:block;">Acepto que esto es una beta de prueba y que mi perfil, fotos y publicaciones quedan guardados y visibles para el resto del grupo de prueba.</label>
+    </div>
+    <div class="field" style="padding-top:4px;"><button class="btn btn-accent btn-block" data-act="do-register" ${S.authBusy?'disabled':''}>${S.authBusy?'Creando cuenta…':'Crear cuenta'}</button></div>
+    <p class="sub" style="text-align:center;margin-top:18px;">¿Ya tienes cuenta? <a href="#" data-act="auth-switch" data-view="login" style="color:var(--accent);">Inicia sesión</a></p>
+  </div></div>`;
+}
+
+
+function loadPersistedData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ console.warn('Rüpü: no se pudo leer datos guardados', e); return null; }
+}
+function persistData(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      posts: POSTS, places: PLACES, challenges: CHALLENGES, experiences: EXPERIENCES,
+      meVerified: ME.verified,
+      mePhoto: ME.photo, myPhotos: ME.myPhotos, meName: ME.name, meHandle: ME.handle, meBio: ME.bio,
+    }));
+  }catch(e){ console.warn('Rüpü: no se pudo guardar (¿localStorage lleno?)', e); }
+}
+const SEED_PHOTOS = {};
+POSTS.concat(PLACES).forEach(x=>{ if(x.photo) SEED_PHOTOS[x.id]=x.photo; });
+function applySeedPhotos(){
+  POSTS.concat(PLACES).forEach(x=>{ if(!x.photo && SEED_PHOTOS[x.id]) x.photo=SEED_PHOTOS[x.id]; });
+}
+function hydrateFromStorage(){
+  const saved = loadPersistedData();
+  if(!saved) return;
+  if(Array.isArray(saved.posts)){ POSTS.length=0; POSTS.push(...saved.posts); }
+  if(Array.isArray(saved.places)){ PLACES.length=0; PLACES.push(...saved.places); }
+  if(Array.isArray(saved.challenges)){ CHALLENGES.length=0; CHALLENGES.push(...saved.challenges); }
+  if(Array.isArray(saved.experiences)){ EXPERIENCES.length=0; EXPERIENCES.push(...saved.experiences); }
+  if(typeof saved.meVerified==='boolean') ME.verified = saved.meVerified;
+  if(typeof saved.mePhoto!=='undefined') ME.photo = saved.mePhoto;
+  if(Array.isArray(saved.myPhotos)) ME.myPhotos = saved.myPhotos;
+  if(saved.meName) ME.name = saved.meName;
+  if(saved.meHandle) ME.handle = saved.meHandle;
+  if(typeof saved.meBio==='string') ME.bio = saved.meBio;
+  applySeedPhotos();
+}
+function relTime(ts){
+  if(!ts) return '';
+  const diffMin = Math.floor((Date.now()-ts)/60000);
+  if(diffMin<1) return 'ahora';
+  if(diffMin<60) return `hace ${diffMin} min`;
+  const hr = Math.floor(diffMin/60);
+  if(hr<24) return `hace ${hr} h`;
+  const day = Math.floor(hr/24);
+  return day===1 ? 'hace 1 día' : `hace ${day} días`;
+}
+function readAndCompressImage(file, cb){
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const maxDim = 1280;
+      let w = img.width, h = img.height;
+      if(w>maxDim || h>maxDim){
+        if(w>h){ h = Math.round(h*maxDim/w); w = maxDim; } else { w = Math.round(w*maxDim/h); h = maxDim; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      try{ cb(canvas.toDataURL('image/jpeg',0.82)); }catch(e){ cb(reader.result); }
+    };
+    img.onerror = ()=> cb(reader.result);
+    img.src = reader.result;
+  };
+  reader.onerror = ()=> cb(null);
+  reader.readAsDataURL(file);
+}
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.innerHTML = icon('check')+`<span>${msg}</span>`;
+  t.classList.add('show');
+  clearTimeout(t._h);
+  t._h = setTimeout(()=>t.classList.remove('show'), 1900);
+}
+
+function verifiedBadge(){
+  return `<svg width="14" height="14" viewBox="0 0 24 24" style="display:inline-block;vertical-align:-2px;margin-left:4px;flex:none;"><circle cx="12" cy="12" r="11" fill="var(--water)"/><path d="M7 12.3l3.2 3.2L17.3 8" stroke="#08201d" stroke-width="2.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+function avatarHTML(u, size, showLvl, editable){
+  const s = size||38;
+  const photo = u.id==='me' ? ME.photo : u.photo;
+  const inner = photo
+    ? `<img src="${photo}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">`
+    : (u.initials||'');
+  return `<div class="avatar" style="width:${s}px;height:${s}px;background:${u.color||'var(--raised-2)'};font-size:${Math.round(s*0.34)}px;overflow:hidden;${editable?'cursor:pointer;':''}" ${editable?'data-act="open-edit-profile"':''}>${inner}
+    ${showLvl?`<div class="lvlbadge">${u.level}</div>`:''}
+    ${editable?`<div class="editbadge">${icon('camera','icon-sm')}</div>`:''}</div>`;
+}
+function sceneHTML(cat, extraBadge, extraClass, photo){
+  const c = CATS[cat] || CATS.naturaleza;
+  const grads = {
+    surf:'linear-gradient(160deg,#123b45,#1c5e63 55%,#37b8ab)',
+    trekking:'linear-gradient(160deg,#16261a,#2d4a2c 55%,#7fa25a)',
+    skate:'linear-gradient(160deg,#1a2436,#2c3f5c 55%,#5b93d1)',
+    futbol:'linear-gradient(160deg,#1a2436,#2c3f5c 55%,#5b93d1)',
+    comida:'linear-gradient(160deg,#3a1f14,#7a3a22 55%,#ff8a61)',
+    playas:'linear-gradient(160deg,#2b2415,#5c4a22 55%,#e7b04c)',
+    naturaleza:'linear-gradient(160deg,#16261a,#2d4a2c 55%,#7fa25a)',
+    fotografia:'linear-gradient(160deg,#2a1a29,#5c2f52 55%,#c15c86)',
+  };
+  const bg = photo ? `url('${photo}') center/cover no-repeat` : (grads[cat]||grads.naturaleza);
+  return `<div class="scene ${extraClass||''}" style="background:${bg}">
+    ${photo ? '' : `<svg viewBox="0 0 200 120" preserveAspectRatio="none" style="opacity:.5">
+      <path d="M0 90 Q40 60 80 85 T200 70 V120 H0 Z" fill="rgba(0,0,0,.28)"/>
+      <path d="M0 105 Q50 85 100 100 T200 92 V120 H0 Z" fill="rgba(0,0,0,.24)"/>
+    </svg>`}
+    <div class="badge">${icon(c.icon,'icon-sm')}<span>${c.label}</span></div>
+    ${extraBadge||''}
+  </div>`;
+}
+function starsHTML(rating){ return `<span class="star">${icon('star','icon-sm')}</span> ${rating}`; }
+function placeById(id){ return PLACES.find(p=>p.id===id); }
+function userById(id){ return id==='me' ? ME : USERS[id]; }
+
+/* ---------------- topbar ---------------- */
+function topbarHTML(title){
+  return `<div class="topbar">
+    <div class="wm">${title? `<h3>${title}</h3>` : `<div class="mark">${icon('compass').replace('class="icon ','class="icon" stroke="#1c0a03" style="width:14px;height:14px;stroke-width:2.2;fill:none;' )}</div><b>Rüpü</b>`}</div>
+    <div class="actions">
+      <button class="iconbtn" data-act="open-search">${icon('search')}</button>
+      <button class="iconbtn" data-act="open-notifs">${icon('bell')}<span class="dot"></span></button>
+    </div>
+  </div>`;
+}
+
+/* ---------------- INICIO ---------------- */
+function renderInicio(){
+  const stories = [ME, USERS.valen, USERS.mateo, USERS.fer, USERS.javi, USERS.sofi];
+  return `
+  ${topbarHTML()}
+  <div class="storyrow">
+    ${stories.map(u=>`<div class="storyitem"><div class="ring">${avatarHTML(u,53)}</div><span>${u.id==='me'?'Tu mundo':u.name.split('_')[0]}</span></div>`).join('')}
+  </div>
+  <div>
+    ${POSTS.map(post=>{
+      const u = userById(post.user);
+      const pl = post.place ? placeById(post.place) : null;
+      const locLabel = postLocationLabel(post);
+      let locAttrs = '';
+      if(pl) locAttrs = `data-act="goto-place" data-id="${pl.id}" style="cursor:pointer;"`;
+      else if(post.geo && post.geo.lat!=null) locAttrs = `data-act="goto-geo" data-lat="${post.geo.lat}" data-lon="${post.geo.lon}" data-name="${(post.geo.name||locLabel).replace(/"/g,'&quot;')}" style="cursor:pointer;"`;
+      return `<div class="post">
+        <div class="post-head">
+          <button class="avatarbtn" data-act="open-profile" data-id="${post.user}" style="all:unset;cursor:pointer;">${avatarHTML(u,38)}</button>
+          <div class="who">
+            <b>${u.name}${u.verified?verifiedBadge():''}</b>
+            <span class="loc" ${locAttrs}>${icon('map','icon-sm')} ${locLabel}${locLabel?' · ':''}${post.createdAt ? relTime(post.createdAt) : post.time}</span>
+          </div>
+          <button class="iconbtn" data-act="report" style="width:30px;height:30px;background:transparent;">···</button>
+        </div>
+        ${sceneHTML(post.cat, '', 'post-media', post.photo)}
+        <div class="post-actions">
+          <button class="actbtn ${post.liked?'liked':''}" data-act="like" data-id="${post.id}">${icon(post.liked?'heart':'heart')}<span>${post.likes}</span></button>
+          <button class="actbtn" data-act="comment" data-id="${post.id}">${icon('comment')}<span>${post.comments}</span></button>
+          <button class="actbtn" data-act="share">${icon('share')}</button>
+          <button class="actbtn save ${post.saved?'liked':''}" data-act="save-post" data-id="${post.id}">${icon('bookmark')}</button>
+        </div>
+        <div class="post-caption"><b>${u.name}</b>${post.caption}</div>
+        <div class="post-tags"><span class="taglet">${CATS[post.cat].label}</span>${locLabel?`<span class="taglet">📍 ${locLabel}</span>`:''}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+/* ---------------- MAPA ---------------- */
+let mlMap = null;
+let mlMarkers = [];
+let mlMeMarker = null;
+let mlGeoControl = null;
+
+/* ---------------- búsqueda de lugares (Chile primero) ----------------
+   1) Instantáneo y local: PLACES (curados) + CHILE_LUGARES (localidades reales de Chile, con
+      coordenadas geocodificadas). Filtra por PREFIJO / inicio de palabra mientras se escribe
+      (con 1-2 letras no se busca "en cualquier parte" del texto, así "M" no trae medio mundo).
+   2) Nominatim sólo como refuerzo, restringido a Chile (countrycodes=cl), y sólo si se escribieron
+      3+ letras y lo local no alcanzó. Nunca trae lugares de otros países. */
+const CHILE_LUGARES = /*GAZ_START*/[{"n":"Arica","r":"Arica y Parinacota","t":1,"lat":-18.47853,"lon":-70.32114},{"n":"Putre","r":"Arica y Parinacota","t":2,"lat":-18.19638,"lon":-69.55922},{"n":"Camarones","r":"Arica y Parinacota","t":2,"lat":-18.96337,"lon":-69.71519},{"n":"General Lagos","r":"Arica y Parinacota","t":2,"lat":-17.83273,"lon":-69.55359},{"n":"Iquique","r":"Tarapacá","t":1,"lat":-20.21407,"lon":-70.15246},{"n":"Alto Hospicio","r":"Tarapacá","t":2,"lat":-20.27005,"lon":-70.10092},{"n":"Pica","r":"Tarapacá","t":2,"lat":-20.49114,"lon":-69.32908},{"n":"Pozo Almonte","r":"Tarapacá","t":2,"lat":-20.25971,"lon":-69.78614},{"n":"Huara","r":"Tarapacá","t":2,"lat":-19.99579,"lon":-69.7727},{"n":"Camiña","r":"Tarapacá","t":2,"lat":-19.31308,"lon":-69.4267},{"n":"Colchane","r":"Tarapacá","t":2,"lat":-19.27582,"lon":-68.63895},{"n":"Mamiña","r":"Tarapacá","t":2,"lat":-20.07204,"lon":-69.21698},{"n":"Cavancha","r":"Tarapacá","t":2,"lat":-20.20903,"lon":-70.14443},{"n":"Humberstone","r":"Tarapacá","t":2,"lat":-20.20858,"lon":-69.79547},{"n":"Antofagasta","r":"Antofagasta","t":1,"lat":-23.64637,"lon":-70.398},{"n":"Calama","r":"Antofagasta","t":1,"lat":-22.46239,"lon":-68.92722},{"n":"San Pedro de Atacama","r":"Antofagasta","t":1,"lat":-23.35455,"lon":-67.90266},{"n":"Tocopilla","r":"Antofagasta","t":2,"lat":-22.08872,"lon":-70.19607},{"n":"Mejillones","r":"Antofagasta","t":2,"lat":-23.10023,"lon":-70.44831},{"n":"Taltal","r":"Antofagasta","t":2,"lat":-25.40783,"lon":-70.48584},{"n":"María Elena","r":"Antofagasta","t":2,"lat":-22.34515,"lon":-69.6618},{"n":"Sierra Gorda","r":"Antofagasta","t":2,"lat":-22.89168,"lon":-69.32001},{"n":"Ollagüe","r":"Antofagasta","t":2,"lat":-21.22422,"lon":-68.25345},{"n":"Chuquicamata","r":"Antofagasta","t":2,"lat":-22.31714,"lon":-68.93031},{"n":"Copiapó","r":"Atacama","t":1,"lat":-27.36647,"lon":-70.33228},{"n":"Caldera","r":"Atacama","t":1,"lat":-27.06755,"lon":-70.8222},{"n":"Bahía Inglesa","r":"Atacama","t":1,"lat":-27.10232,"lon":-70.85592},{"n":"Chañaral","r":"Atacama","t":2,"lat":-26.34793,"lon":-70.62236},{"n":"Vallenar","r":"Atacama","t":2,"lat":-28.57504,"lon":-70.76164},{"n":"Huasco","r":"Atacama","t":2,"lat":-28.46512,"lon":-71.22079},{"n":"Freirina","r":"Atacama","t":2,"lat":-28.50865,"lon":-71.07857},{"n":"Diego de Almagro","r":"Atacama","t":2,"lat":-26.39108,"lon":-70.04593},{"n":"Tierra Amarilla","r":"Atacama","t":2,"lat":-27.46805,"lon":-70.26493},{"n":"Carrizal Bajo","r":"Atacama","t":2,"lat":-28.08178,"lon":-71.14778},{"n":"La Serena","r":"Coquimbo","t":1,"lat":-29.90271,"lon":-71.25196},{"n":"Coquimbo","r":"Coquimbo","t":1,"lat":-29.95319,"lon":-71.33795},{"n":"Ovalle","r":"Coquimbo","t":2,"lat":-30.60308,"lon":-71.20299},{"n":"Vicuña","r":"Coquimbo","t":1,"lat":-30.03405,"lon":-70.71267},{"n":"Pisco Elqui","r":"Coquimbo","t":1,"lat":-30.12312,"lon":-70.493},{"n":"Paihuano","r":"Coquimbo","t":2,"lat":-30.02904,"lon":-70.51644},{"n":"Andacollo","r":"Coquimbo","t":2,"lat":-30.2322,"lon":-71.08476},{"n":"Illapel","r":"Coquimbo","t":2,"lat":-31.63269,"lon":-71.1683},{"n":"Salamanca","r":"Coquimbo","t":2,"lat":-31.78047,"lon":-70.96499},{"n":"Los Vilos","r":"Coquimbo","t":1,"lat":-31.91217,"lon":-71.51387},{"n":"Canela","r":"Coquimbo","t":2,"lat":-31.4644,"lon":-71.43492},{"n":"Combarbalá","r":"Coquimbo","t":2,"lat":-31.17815,"lon":-71.00244},{"n":"Monte Patria","r":"Coquimbo","t":2,"lat":-30.69448,"lon":-70.95796},{"n":"Punitaqui","r":"Coquimbo","t":2,"lat":-30.83375,"lon":-71.25736},{"n":"Río Hurtado","r":"Coquimbo","t":2,"lat":-30.45222,"lon":-70.68019},{"n":"Tongoy","r":"Coquimbo","t":1,"lat":-30.25722,"lon":-71.49286},{"n":"Guanaqueros","r":"Coquimbo","t":2,"lat":-30.1977,"lon":-71.42201},{"n":"Puerto Velero","r":"Coquimbo","t":2,"lat":-30.24216,"lon":-71.47502},{"n":"Punta de Choros","r":"Coquimbo","t":2,"lat":-29.24707,"lon":-71.46162},{"n":"Huentelauquén","r":"Coquimbo","t":2,"lat":-29.93333,"lon":-71.28159},{"n":"Totoralillo","r":"Coquimbo","t":2,"lat":-30.06389,"lon":-71.36635},{"n":"Valparaíso","r":"Valparaíso","t":1,"lat":-33.04585,"lon":-71.61967},{"n":"Viña del Mar","r":"Valparaíso","t":1,"lat":-33.02445,"lon":-71.55176},{"n":"Concón","r":"Valparaíso","t":1,"lat":-32.922,"lon":-71.51596},{"n":"Quintero","r":"Valparaíso","t":2,"lat":-32.78402,"lon":-71.52834},{"n":"Puchuncaví","r":"Valparaíso","t":2,"lat":-32.72599,"lon":-71.41501},{"n":"Zapallar","r":"Valparaíso","t":1,"lat":-32.55283,"lon":-71.45882},{"n":"Papudo","r":"Valparaíso","t":1,"lat":-32.50759,"lon":-71.44594},{"n":"Cachagua","r":"Valparaíso","t":1,"lat":-32.57961,"lon":-71.45309},{"n":"Maitencillo","r":"Valparaíso","t":1,"lat":-32.64418,"lon":-71.43294},{"n":"Horcón","r":"Valparaíso","t":2,"lat":-32.71124,"lon":-71.48848},{"n":"La Ligua","r":"Valparaíso","t":2,"lat":-32.44964,"lon":-71.23167},{"n":"Cabildo","r":"Valparaíso","t":2,"lat":-32.42659,"lon":-71.06633},{"n":"Petorca","r":"Valparaíso","t":2,"lat":-32.2517,"lon":-70.93091},{"n":"Los Andes","r":"Valparaíso","t":1,"lat":-32.83369,"lon":-70.59816},{"n":"San Felipe","r":"Valparaíso","t":2,"lat":-32.75069,"lon":-70.72527},{"n":"Putaendo","r":"Valparaíso","t":2,"lat":-32.62608,"lon":-70.71676},{"n":"Santa María","r":"Valparaíso","t":2,"lat":-32.74787,"lon":-70.65674},{"n":"Llaillay","r":"Valparaíso","t":2,"lat":-32.84297,"lon":-70.95265},{"n":"Quillota","r":"Valparaíso","t":2,"lat":-32.88,"lon":-71.24736},{"n":"La Calera","r":"Valparaíso","t":2,"lat":-32.78898,"lon":-71.20355},{"n":"La Cruz","r":"Valparaíso","t":2,"lat":-32.82791,"lon":-71.22715},{"n":"Limache","r":"Valparaíso","t":2,"lat":-33.00187,"lon":-71.26573},{"n":"Olmué","r":"Valparaíso","t":1,"lat":-32.99562,"lon":-71.18621},{"n":"Villa Alemana","r":"Valparaíso","t":2,"lat":-33.04419,"lon":-71.37255},{"n":"Quilpué","r":"Valparaíso","t":2,"lat":-33.04981,"lon":-71.44153},{"n":"Casablanca","r":"Valparaíso","t":2,"lat":-33.32059,"lon":-71.41008},{"n":"Algarrobo","r":"Valparaíso","t":1,"lat":-33.36917,"lon":-71.66805},{"n":"El Quisco","r":"Valparaíso","t":1,"lat":-33.40031,"lon":-71.694},{"n":"El Tabo","r":"Valparaíso","t":2,"lat":-33.45458,"lon":-71.66911},{"n":"Cartagena","r":"Valparaíso","t":1,"lat":-33.54685,"lon":-71.60317},{"n":"San Antonio","r":"Valparaíso","t":1,"lat":-33.58086,"lon":-71.61324},{"n":"Santo Domingo","r":"Valparaíso","t":2,"lat":-33.78637,"lon":-71.67563},{"n":"Isla Negra","r":"Valparaíso","t":1,"lat":-33.44027,"lon":-71.68056},{"n":"Las Cruces","r":"Valparaíso","t":2,"lat":-33.49965,"lon":-71.62386},{"n":"Reñaca","r":"Valparaíso","t":1,"lat":-32.97153,"lon":-71.54371},{"n":"Mantagua","r":"Valparaíso","t":2,"lat":-32.86324,"lon":-71.47426},{"n":"Ritoque","r":"Valparaíso","t":2,"lat":-32.81772,"lon":-71.53025},{"n":"Hanga Roa","r":"Valparaíso","t":1,"lat":-27.14812,"lon":-109.42734},{"n":"San Juan Bautista","r":"Valparaíso","t":2,"lat":-33.63573,"lon":-78.83132},{"n":"Los Molles","r":"Valparaíso","t":2,"lat":-33.05652,"lon":-71.60768},{"n":"Catemu","r":"Valparaíso","t":2,"lat":-32.77842,"lon":-70.96334},{"n":"Panquehue","r":"Valparaíso","t":2,"lat":-32.77058,"lon":-70.83613},{"n":"Rinconada","r":"Valparaíso","t":2,"lat":-32.83938,"lon":-70.68718},{"n":"Calle Larga","r":"Valparaíso","t":2,"lat":-32.85527,"lon":-70.62604},{"n":"San Esteban","r":"Valparaíso","t":2,"lat":-32.79905,"lon":-70.57958},{"n":"Hijuelas","r":"Valparaíso","t":2,"lat":-32.80006,"lon":-71.14522},{"n":"Nogales","r":"Valparaíso","t":2,"lat":-32.73638,"lon":-71.20024},{"n":"Ventanas","r":"Valparaíso","t":2,"lat":-32.74177,"lon":-71.48835},{"n":"Laguna Verde","r":"Valparaíso","t":2,"lat":-33.10456,"lon":-71.66756},{"n":"Portillo","r":"Valparaíso","t":2,"lat":-32.83642,"lon":-70.12908},{"n":"El Membrillo","r":"Valparaíso","t":2,"lat":-32.28907,"lon":-71.09927},{"n":"Pullally","r":"Valparaíso","t":2,"lat":-32.43695,"lon":-71.31577},{"n":"Punta de Tralca","r":"Valparaíso","t":2,"lat":-33.4254,"lon":-71.69174},{"n":"Mirasol","r":"Valparaíso","t":2,"lat":-33.32459,"lon":-71.64736},{"n":"Santiago","r":"Región Metropolitana","t":1,"lat":-33.4377,"lon":-70.65107},{"n":"Providencia","r":"Región Metropolitana","t":1,"lat":-33.42884,"lon":-70.61134},{"n":"Las Condes","r":"Región Metropolitana","t":1,"lat":-33.40845,"lon":-70.56715},{"n":"Vitacura","r":"Región Metropolitana","t":1,"lat":-33.38711,"lon":-70.57645},{"n":"Lo Barnechea","r":"Región Metropolitana","t":1,"lat":-33.3616,"lon":-70.5052},{"n":"Ñuñoa","r":"Región Metropolitana","t":1,"lat":-33.45432,"lon":-70.59364},{"n":"La Reina","r":"Región Metropolitana","t":2,"lat":-33.44228,"lon":-70.54327},{"n":"Peñalolén","r":"Región Metropolitana","t":2,"lat":-33.47659,"lon":-70.54183},{"n":"Macul","r":"Región Metropolitana","t":2,"lat":-33.48216,"lon":-70.59919},{"n":"La Florida","r":"Región Metropolitana","t":1,"lat":-33.52042,"lon":-70.60062},{"n":"Puente Alto","r":"Región Metropolitana","t":1,"lat":-33.60953,"lon":-70.57547},{"n":"San José de Maipo","r":"Región Metropolitana","t":1,"lat":-33.6404,"lon":-70.35278},{"n":"Pirque","r":"Región Metropolitana","t":2,"lat":-33.63488,"lon":-70.573},{"n":"Maipú","r":"Región Metropolitana","t":1,"lat":-33.50944,"lon":-70.75618},{"n":"Pudahuel","r":"Región Metropolitana","t":2,"lat":-33.41927,"lon":-70.86345},{"n":"Quilicura","r":"Región Metropolitana","t":2,"lat":-33.36004,"lon":-70.71186},{"n":"Colina","r":"Región Metropolitana","t":1,"lat":-33.20247,"lon":-70.67491},{"n":"Chicureo","r":"Región Metropolitana","t":1,"lat":-33.28365,"lon":-70.65338},{"n":"Lampa","r":"Región Metropolitana","t":2,"lat":-33.2896,"lon":-70.87053},{"n":"Til Til","r":"Región Metropolitana","t":2,"lat":-33.08528,"lon":-70.92939},{"n":"Melipilla","r":"Región Metropolitana","t":1,"lat":-33.68551,"lon":-71.21458},{"n":"Talagante","r":"Región Metropolitana","t":1,"lat":-33.66444,"lon":-70.93028},{"n":"Peñaflor","r":"Región Metropolitana","t":2,"lat":-33.60586,"lon":-70.87853},{"n":"Isla de Maipo","r":"Región Metropolitana","t":2,"lat":-33.75374,"lon":-70.90393},{"n":"El Monte","r":"Región Metropolitana","t":2,"lat":-33.66782,"lon":-71.02724},{"n":"Buin","r":"Región Metropolitana","t":1,"lat":-33.73197,"lon":-70.74196},{"n":"Paine","r":"Región Metropolitana","t":2,"lat":-33.81011,"lon":-70.73902},{"n":"San Bernardo","r":"Región Metropolitana","t":1,"lat":-33.59229,"lon":-70.70458},{"n":"Calera de Tango","r":"Región Metropolitana","t":2,"lat":-33.63094,"lon":-70.75932},{"n":"Curacaví","r":"Región Metropolitana","t":2,"lat":-33.40223,"lon":-71.12937},{"n":"María Pinto","r":"Región Metropolitana","t":2,"lat":-33.51598,"lon":-71.12003},{"n":"Alhué","r":"Región Metropolitana","t":2,"lat":-34.03709,"lon":-71.0845},{"n":"Recoleta","r":"Región Metropolitana","t":2,"lat":-33.40207,"lon":-70.64289},{"n":"Independencia","r":"Región Metropolitana","t":2,"lat":-33.42229,"lon":-70.65546},{"n":"Huechuraba","r":"Región Metropolitana","t":2,"lat":-33.37446,"lon":-70.6363},{"n":"Conchalí","r":"Región Metropolitana","t":2,"lat":-33.38432,"lon":-70.67474},{"n":"Renca","r":"Región Metropolitana","t":2,"lat":-33.40362,"lon":-70.73102},{"n":"Cerro Navia","r":"Región Metropolitana","t":2,"lat":-33.42528,"lon":-70.74615},{"n":"Estación Central","r":"Región Metropolitana","t":2,"lat":-33.45364,"lon":-70.68987},{"n":"San Miguel","r":"Región Metropolitana","t":2,"lat":-33.48597,"lon":-70.64955},{"n":"La Cisterna","r":"Región Metropolitana","t":2,"lat":-33.53463,"lon":-70.6644},{"n":"Farellones","r":"Región Metropolitana","t":1,"lat":-33.3508,"lon":-70.31294},{"n":"El Arrayán","r":"Región Metropolitana","t":2,"lat":-33.34773,"lon":-70.47779},{"n":"Batuco","r":"Región Metropolitana","t":2,"lat":-33.23005,"lon":-70.80853},{"n":"Padre Hurtado","r":"Región Metropolitana","t":2,"lat":-33.56731,"lon":-70.80205},{"n":"Cerrillos","r":"Región Metropolitana","t":2,"lat":-33.50234,"lon":-70.71584},{"n":"Quinta Normal","r":"Región Metropolitana","t":2,"lat":-33.42836,"lon":-70.69999},{"n":"San Joaquín","r":"Región Metropolitana","t":2,"lat":-33.49423,"lon":-70.6285},{"n":"La Granja","r":"Región Metropolitana","t":2,"lat":-33.54312,"lon":-70.63324},{"n":"La Pintana","r":"Región Metropolitana","t":2,"lat":-33.58336,"lon":-70.62983},{"n":"El Bosque","r":"Región Metropolitana","t":2,"lat":-33.55615,"lon":-70.66557},{"n":"San Ramón","r":"Región Metropolitana","t":2,"lat":-33.54282,"lon":-70.64381},{"n":"Lo Espejo","r":"Región Metropolitana","t":2,"lat":-33.52508,"lon":-70.69454},{"n":"Pedro Aguirre Cerda","r":"Región Metropolitana","t":2,"lat":-33.49383,"lon":-70.67608},{"n":"Lo Prado","r":"Región Metropolitana","t":2,"lat":-33.44741,"lon":-70.72339},{"n":"Maipo","r":"Región Metropolitana","t":2,"lat":-33.73286,"lon":-70.78124},{"n":"El Volcán","r":"Región Metropolitana","t":2,"lat":-33.81538,"lon":-70.16881},{"n":"Baños Morales","r":"Región Metropolitana","t":2,"lat":-33.82288,"lon":-70.06102},{"n":"Lo Curro","r":"Región Metropolitana","t":2,"lat":-33.36936,"lon":-70.55821},{"n":"Bellavista","r":"Región Metropolitana","t":2,"lat":-33.72079,"lon":-70.857},{"n":"Barrio Italia","r":"Región Metropolitana","t":2,"lat":-33.44846,"lon":-70.62453},{"n":"Rancagua","r":"O'Higgins","t":1,"lat":-34.17024,"lon":-70.74072},{"n":"Machalí","r":"O'Higgins","t":2,"lat":-34.18245,"lon":-70.65116},{"n":"San Fernando","r":"O'Higgins","t":1,"lat":-34.58379,"lon":-70.98912},{"n":"Santa Cruz","r":"O'Higgins","t":1,"lat":-34.64032,"lon":-71.36613},{"n":"Pichilemu","r":"O'Higgins","t":1,"lat":-34.38517,"lon":-72.00466},{"n":"Rengo","r":"O'Higgins","t":2,"lat":-34.40887,"lon":-70.86166},{"n":"San Vicente de Tagua Tagua","r":"O'Higgins","t":2,"lat":-34.43927,"lon":-71.07679},{"n":"Chimbarongo","r":"O'Higgins","t":2,"lat":-34.70895,"lon":-71.04036},{"n":"Peumo","r":"O'Higgins","t":2,"lat":-34.39592,"lon":-71.16943},{"n":"Graneros","r":"O'Higgins","t":2,"lat":-34.06447,"lon":-70.7263},{"n":"Requínoa","r":"O'Higgins","t":2,"lat":-34.28486,"lon":-70.81751},{"n":"Doñihue","r":"O'Higgins","t":2,"lat":-34.22607,"lon":-70.96489},{"n":"Navidad","r":"O'Higgins","t":1,"lat":-33.9536,"lon":-71.83058},{"n":"Matanzas","r":"O'Higgins","t":1,"lat":-33.96075,"lon":-71.87332},{"n":"Litueche","r":"O'Higgins","t":2,"lat":-34.11542,"lon":-71.72969},{"n":"Las Cabras","r":"O'Higgins","t":2,"lat":-34.29173,"lon":-71.30984},{"n":"Marchigüe","r":"O'Higgins","t":2,"lat":-34.36687,"lon":-71.64215},{"n":"Paredones","r":"O'Higgins","t":2,"lat":-34.64764,"lon":-71.90085},{"n":"Lolol","r":"O'Higgins","t":2,"lat":-34.72784,"lon":-71.64408},{"n":"Pumanque","r":"O'Higgins","t":2,"lat":-34.60481,"lon":-71.65468},{"n":"Nancagua","r":"O'Higgins","t":2,"lat":-34.65274,"lon":-71.19538},{"n":"Palmilla","r":"O'Higgins","t":2,"lat":-34.59605,"lon":-71.36248},{"n":"Peralillo","r":"O'Higgins","t":2,"lat":-34.47803,"lon":-71.47932},{"n":"Cáhuil","r":"O'Higgins","t":2,"lat":-34.47857,"lon":-72.01683},{"n":"La Estrella","r":"O'Higgins","t":2,"lat":-34.20529,"lon":-71.6546},{"n":"Coltauco","r":"O'Higgins","t":2,"lat":-34.28628,"lon":-71.08257},{"n":"Coinco","r":"O'Higgins","t":2,"lat":-34.26994,"lon":-70.95158},{"n":"Malloa","r":"O'Higgins","t":2,"lat":-34.44214,"lon":-70.94407},{"n":"Quinta de Tilcoco","r":"O'Higgins","t":2,"lat":-34.35458,"lon":-70.96388},{"n":"Codegua","r":"O'Higgins","t":2,"lat":-34.0377,"lon":-70.65654},{"n":"Mostazal","r":"O'Higgins","t":2,"lat":-33.94685,"lon":-70.5981},{"n":"Olivar","r":"O'Higgins","t":2,"lat":-34.20944,"lon":-70.81723},{"n":"Pichidegua","r":"O'Higgins","t":2,"lat":-34.35841,"lon":-71.28271},{"n":"Placilla","r":"O'Higgins","t":2,"lat":-34.63859,"lon":-71.11737},{"n":"Chépica","r":"O'Higgins","t":2,"lat":-34.72859,"lon":-71.27386},{"n":"Cardenal Caro","r":"O'Higgins","t":2,"lat":-34.58399,"lon":-70.99077},{"n":"Talca","r":"Maule","t":1,"lat":-35.42653,"lon":-71.66603},{"n":"Curicó","r":"Maule","t":1,"lat":-34.98537,"lon":-71.23937},{"n":"Linares","r":"Maule","t":1,"lat":-35.84529,"lon":-71.59772},{"n":"Constitución","r":"Maule","t":2,"lat":-35.33183,"lon":-72.4119},{"n":"Cauquenes","r":"Maule","t":2,"lat":-35.96713,"lon":-72.31543},{"n":"Molina","r":"Maule","t":2,"lat":-35.11397,"lon":-71.27998},{"n":"San Javier","r":"Maule","t":2,"lat":-35.59239,"lon":-71.73531},{"n":"Parral","r":"Maule","t":2,"lat":-36.14143,"lon":-71.82222},{"n":"Chanco","r":"Maule","t":2,"lat":-35.73418,"lon":-72.53316},{"n":"Pelluhue","r":"Maule","t":2,"lat":-35.81502,"lon":-72.57696},{"n":"Curanipe","r":"Maule","t":1,"lat":-35.84525,"lon":-72.63636},{"n":"Vichuquén","r":"Maule","t":1,"lat":-34.88402,"lon":-71.99237},{"n":"Iloca","r":"Maule","t":2,"lat":-34.93366,"lon":-72.18016},{"n":"Licantén","r":"Maule","t":2,"lat":-34.98569,"lon":-71.98459},{"n":"Hualañé","r":"Maule","t":2,"lat":-34.97749,"lon":-71.80121},{"n":"Teno","r":"Maule","t":2,"lat":-34.8668,"lon":-71.16122},{"n":"Romeral","r":"Maule","t":2,"lat":-34.95997,"lon":-71.12531},{"n":"Sagrada Familia","r":"Maule","t":2,"lat":-34.99904,"lon":-71.38171},{"n":"Curepto","r":"Maule","t":2,"lat":-35.09372,"lon":-72.01808},{"n":"Colbún","r":"Maule","t":2,"lat":-35.69601,"lon":-71.40609},{"n":"Pencahue","r":"Maule","t":2,"lat":-35.39617,"lon":-71.79937},{"n":"Maule","r":"Maule","t":2,"lat":-35.52135,"lon":-71.69189},{"n":"Empedrado","r":"Maule","t":2,"lat":-35.59078,"lon":-72.27762},{"n":"Longaví","r":"Maule","t":2,"lat":-35.96597,"lon":-71.68467},{"n":"Retiro","r":"Maule","t":2,"lat":-36.05544,"lon":-71.76506},{"n":"Villa Alegre","r":"Maule","t":2,"lat":-35.6752,"lon":-71.74467},{"n":"Yerbas Buenas","r":"Maule","t":2,"lat":-35.74641,"lon":-71.58208},{"n":"Rauco","r":"Maule","t":2,"lat":-34.92461,"lon":-71.31669},{"n":"Duao","r":"Maule","t":2,"lat":-34.89544,"lon":-72.17892},{"n":"Putú","r":"Maule","t":2,"lat":-35.21255,"lon":-72.28525},{"n":"Reloca","r":"Maule","t":2,"lat":-35.66649,"lon":-72.42765},{"n":"Loanco","r":"Maule","t":2,"lat":-35.59056,"lon":-72.60775},{"n":"Chillán","r":"Ñuble","t":1,"lat":-36.60666,"lon":-72.10332},{"n":"Chillán Viejo","r":"Ñuble","t":2,"lat":-36.623,"lon":-72.13171},{"n":"San Carlos","r":"Ñuble","t":2,"lat":-36.37923,"lon":-72.01795},{"n":"Bulnes","r":"Ñuble","t":2,"lat":-36.74225,"lon":-72.29872},{"n":"Quirihue","r":"Ñuble","t":2,"lat":-36.28271,"lon":-72.54081},{"n":"Cobquecura","r":"Ñuble","t":1,"lat":-36.13176,"lon":-72.79154},{"n":"Coelemu","r":"Ñuble","t":2,"lat":-36.4876,"lon":-72.70233},{"n":"Yungay","r":"Ñuble","t":2,"lat":-37.11937,"lon":-72.01885},{"n":"Pinto","r":"Ñuble","t":2,"lat":-36.70361,"lon":-71.89228},{"n":"Las Trancas","r":"Ñuble","t":1,"lat":-36.91479,"lon":-71.4957},{"n":"Termas de Chillán","r":"Ñuble","t":1,"lat":-36.90393,"lon":-71.40822},{"n":"Ninhue","r":"Ñuble","t":2,"lat":-36.39359,"lon":-72.39764},{"n":"Portezuelo","r":"Ñuble","t":2,"lat":-36.52744,"lon":-72.42853},{"n":"Quillón","r":"Ñuble","t":2,"lat":-36.80841,"lon":-72.50537},{"n":"El Carmen","r":"Ñuble","t":2,"lat":-36.89785,"lon":-72.02461},{"n":"Pemuco","r":"Ñuble","t":2,"lat":-36.97674,"lon":-72.09886},{"n":"Coihueco","r":"Ñuble","t":2,"lat":-36.6288,"lon":-71.83191},{"n":"San Nicolás","r":"Ñuble","t":2,"lat":-36.48532,"lon":-72.21215},{"n":"Ránquil","r":"Ñuble","t":2,"lat":-36.63985,"lon":-72.60373},{"n":"Treguaco","r":"Ñuble","t":2,"lat":-36.43235,"lon":-72.61527},{"n":"San Fabián","r":"Ñuble","t":2,"lat":-36.65343,"lon":-71.20787},{"n":"Concepción","r":"Biobío","t":1,"lat":-36.82707,"lon":-73.05021},{"n":"Talcahuano","r":"Biobío","t":1,"lat":-36.71449,"lon":-73.11411},{"n":"San Pedro de la Paz","r":"Biobío","t":2,"lat":-36.84142,"lon":-73.10399},{"n":"Chiguayante","r":"Biobío","t":2,"lat":-36.92925,"lon":-73.02371},{"n":"Hualpén","r":"Biobío","t":2,"lat":-36.79276,"lon":-73.09434},{"n":"Coronel","r":"Biobío","t":2,"lat":-37.01647,"lon":-73.1562},{"n":"Lota","r":"Biobío","t":2,"lat":-37.09445,"lon":-73.1564},{"n":"Penco","r":"Biobío","t":2,"lat":-36.73858,"lon":-72.99377},{"n":"Tomé","r":"Biobío","t":1,"lat":-36.61708,"lon":-72.9575},{"n":"Dichato","r":"Biobío","t":1,"lat":-36.54863,"lon":-72.93644},{"n":"Los Ángeles","r":"Biobío","t":1,"lat":-37.47075,"lon":-72.35169},{"n":"Lebu","r":"Biobío","t":2,"lat":-37.61023,"lon":-73.65605},{"n":"Arauco","r":"Biobío","t":2,"lat":-37.24625,"lon":-73.31764},{"n":"Cañete","r":"Biobío","t":2,"lat":-37.80041,"lon":-73.39908},{"n":"Curanilahue","r":"Biobío","t":2,"lat":-37.4758,"lon":-73.34571},{"n":"Tirúa","r":"Biobío","t":2,"lat":-38.34387,"lon":-73.49348},{"n":"Contulmo","r":"Biobío","t":2,"lat":-38.01602,"lon":-73.2286},{"n":"Nacimiento","r":"Biobío","t":2,"lat":-37.50183,"lon":-72.67311},{"n":"Mulchén","r":"Biobío","t":2,"lat":-37.72009,"lon":-72.24413},{"n":"Santa Bárbara","r":"Biobío","t":2,"lat":-37.66808,"lon":-72.02141},{"n":"Laja","r":"Biobío","t":2,"lat":-37.27951,"lon":-72.71492},{"n":"Cabrero","r":"Biobío","t":2,"lat":-37.03583,"lon":-72.40268},{"n":"Yumbel","r":"Biobío","t":2,"lat":-37.09787,"lon":-72.56228},{"n":"Antuco","r":"Biobío","t":1,"lat":-37.32996,"lon":-71.67916},{"n":"Alto Biobío","r":"Biobío","t":2,"lat":-37.83522,"lon":-71.41134},{"n":"Ralco","r":"Biobío","t":2,"lat":-37.88203,"lon":-71.63738},{"n":"Hualqui","r":"Biobío","t":2,"lat":-36.97594,"lon":-72.93839},{"n":"Florida","r":"Biobío","t":2,"lat":-36.8253,"lon":-72.66145},{"n":"Los Álamos","r":"Biobío","t":2,"lat":-37.62713,"lon":-73.46184},{"n":"Lago Lanalhue","r":"Biobío","t":2,"lat":-37.93498,"lon":-73.27122},{"n":"Punta Lavapié","r":"Biobío","t":2,"lat":-37.14971,"lon":-73.58082},{"n":"Ranquil","r":"Biobío","t":2,"lat":-36.81374,"lon":-73.04324},{"n":"Trupán","r":"Biobío","t":2,"lat":-37.27616,"lon":-71.83506},{"n":"Quilleco","r":"Biobío","t":2,"lat":-37.47097,"lon":-71.98031},{"n":"Negrete","r":"Biobío","t":2,"lat":-37.58567,"lon":-72.52926},{"n":"San Rosendo","r":"Biobío","t":2,"lat":-37.26308,"lon":-72.72403},{"n":"Tucapel","r":"Biobío","t":2,"lat":-37.29256,"lon":-71.94952},{"n":"Santa Juana","r":"Biobío","t":2,"lat":-37.17378,"lon":-72.94259},{"n":"Chome","r":"Biobío","t":2,"lat":-36.77391,"lon":-73.19997},{"n":"Cerro Caracol","r":"Biobío","t":2,"lat":-36.84219,"lon":-73.03813},{"n":"Temuco","r":"La Araucanía","t":1,"lat":-38.73589,"lon":-72.59054},{"n":"Pucón","r":"La Araucanía","t":1,"lat":-39.27312,"lon":-71.97776},{"n":"Villarrica","r":"La Araucanía","t":1,"lat":-39.27809,"lon":-72.22744},{"n":"Angol","r":"La Araucanía","t":2,"lat":-37.79879,"lon":-72.70861},{"n":"Victoria","r":"La Araucanía","t":2,"lat":-38.23395,"lon":-72.33166},{"n":"Lautaro","r":"La Araucanía","t":2,"lat":-38.53431,"lon":-72.43505},{"n":"Nueva Imperial","r":"La Araucanía","t":2,"lat":-38.74531,"lon":-72.952},{"n":"Carahue","r":"La Araucanía","t":2,"lat":-38.71158,"lon":-73.16517},{"n":"Puerto Saavedra","r":"La Araucanía","t":2,"lat":-38.79232,"lon":-73.39687},{"n":"Curarrehue","r":"La Araucanía","t":1,"lat":-39.35898,"lon":-71.58736},{"n":"Cunco","r":"La Araucanía","t":2,"lat":-38.93297,"lon":-72.03209},{"n":"Melipeuco","r":"La Araucanía","t":2,"lat":-38.85324,"lon":-71.69501},{"n":"Lonquimay","r":"La Araucanía","t":1,"lat":-38.45407,"lon":-71.37063},{"n":"Curacautín","r":"La Araucanía","t":1,"lat":-38.4373,"lon":-71.88834},{"n":"Malalcahuello","r":"La Araucanía","t":1,"lat":-38.47517,"lon":-71.58159},{"n":"Traiguén","r":"La Araucanía","t":2,"lat":-38.25082,"lon":-72.66688},{"n":"Collipulli","r":"La Araucanía","t":2,"lat":-37.95663,"lon":-72.43744},{"n":"Loncoche","r":"La Araucanía","t":2,"lat":-39.37062,"lon":-72.63007},{"n":"Freire","r":"La Araucanía","t":2,"lat":-38.95142,"lon":-72.62543},{"n":"Padre Las Casas","r":"La Araucanía","t":2,"lat":-38.76742,"lon":-72.59563},{"n":"Gorbea","r":"La Araucanía","t":2,"lat":-39.10316,"lon":-72.67594},{"n":"Toltén","r":"La Araucanía","t":2,"lat":-39.21436,"lon":-73.04993},{"n":"Teodoro Schmidt","r":"La Araucanía","t":2,"lat":-38.99675,"lon":-73.08918},{"n":"Lican Ray","r":"La Araucanía","t":1,"lat":-39.48972,"lon":-72.15539},{"n":"Cherquenco","r":"La Araucanía","t":2,"lat":-38.68563,"lon":-72.00386},{"n":"Vilcún","r":"La Araucanía","t":2,"lat":-38.6704,"lon":-72.22408},{"n":"Galvarino","r":"La Araucanía","t":2,"lat":-38.41112,"lon":-72.78125},{"n":"Purén","r":"La Araucanía","t":2,"lat":-38.03328,"lon":-73.07259},{"n":"Los Sauces","r":"La Araucanía","t":2,"lat":-37.98296,"lon":-72.82918},{"n":"Ercilla","r":"La Araucanía","t":2,"lat":-38.06091,"lon":-72.37547},{"n":"Lumaco","r":"La Araucanía","t":2,"lat":-38.16532,"lon":-72.9064},{"n":"Cholchol","r":"La Araucanía","t":2,"lat":-38.60256,"lon":-72.84766},{"n":"Renaico","r":"La Araucanía","t":2,"lat":-37.67171,"lon":-72.58326},{"n":"Pitrufquén","r":"La Araucanía","t":2,"lat":-38.98629,"lon":-72.63725},{"n":"Perquenco","r":"La Araucanía","t":2,"lat":-38.42125,"lon":-72.37783},{"n":"Capitán Pastene","r":"La Araucanía","t":2,"lat":-38.19332,"lon":-72.99248},{"n":"Caburgua","r":"La Araucanía","t":2,"lat":-39.19938,"lon":-71.80813},{"n":"Conguillío","r":"La Araucanía","t":2,"lat":-38.73916,"lon":-72.62362},{"n":"Cautín","r":"La Araucanía","t":2,"lat":-38.72993,"lon":-72.57441},{"n":"Cañete","r":"La Araucanía","t":2,"lat":-38.72292,"lon":-72.61167},{"n":"Valdivia","r":"Los Ríos","t":1,"lat":-39.81413,"lon":-73.24599},{"n":"La Unión","r":"Los Ríos","t":1,"lat":-40.29524,"lon":-73.08204},{"n":"Río Bueno","r":"Los Ríos","t":2,"lat":-40.33367,"lon":-72.95676},{"n":"Panguipulli","r":"Los Ríos","t":1,"lat":-39.64199,"lon":-72.33338},{"n":"Futrono","r":"Los Ríos","t":2,"lat":-40.1312,"lon":-72.38266},{"n":"Lago Ranco","r":"Los Ríos","t":1,"lat":-40.32167,"lon":-72.48135},{"n":"Lanco","r":"Los Ríos","t":2,"lat":-39.45222,"lon":-72.77542},{"n":"Máfil","r":"Los Ríos","t":2,"lat":-39.66598,"lon":-72.95213},{"n":"Mariquina","r":"Los Ríos","t":2,"lat":-39.49689,"lon":-73.04214},{"n":"Paillaco","r":"Los Ríos","t":2,"lat":-40.07066,"lon":-72.87267},{"n":"Los Lagos","r":"Los Ríos","t":2,"lat":-39.8634,"lon":-72.81297},{"n":"Corral","r":"Los Ríos","t":1,"lat":-39.88774,"lon":-73.43145},{"n":"Niebla","r":"Los Ríos","t":1,"lat":-39.87049,"lon":-73.40048},{"n":"Coñaripe","r":"Los Ríos","t":1,"lat":-39.56785,"lon":-72.00742},{"n":"Neltume","r":"Los Ríos","t":2,"lat":-39.85056,"lon":-71.94292},{"n":"Choshuenco","r":"Los Ríos","t":2,"lat":-39.83722,"lon":-72.08234},{"n":"Liquiñe","r":"Los Ríos","t":2,"lat":-39.74033,"lon":-71.85565},{"n":"Riñihue","r":"Los Ríos","t":2,"lat":-39.81986,"lon":-72.44194},{"n":"Llifén","r":"Los Ríos","t":2,"lat":-40.20013,"lon":-72.25961},{"n":"Huellelhue","r":"Los Ríos","t":2,"lat":-39.79448,"lon":-73.12574},{"n":"San José de la Mariquina","r":"Los Ríos","t":2,"lat":-39.53945,"lon":-72.96108},{"n":"Curiñanco","r":"Los Ríos","t":2,"lat":-39.73521,"lon":-73.38967},{"n":"Puerto Montt","r":"Los Lagos","t":1,"lat":-41.4718,"lon":-72.93959},{"n":"Osorno","r":"Los Lagos","t":1,"lat":-40.5737,"lon":-73.13581},{"n":"Puerto Varas","r":"Los Lagos","t":1,"lat":-41.3178,"lon":-72.98291},{"n":"Frutillar","r":"Los Lagos","t":1,"lat":-41.12585,"lon":-73.06047},{"n":"Llanquihue","r":"Los Lagos","t":2,"lat":-41.25757,"lon":-73.00474},{"n":"Ancud","r":"Los Lagos","t":1,"lat":-41.86822,"lon":-73.82872},{"n":"Castro","r":"Los Lagos","t":1,"lat":-42.48237,"lon":-73.76429},{"n":"Dalcahue","r":"Los Lagos","t":2,"lat":-42.37955,"lon":-73.6473},{"n":"Quellón","r":"Los Lagos","t":1,"lat":-43.12003,"lon":-73.6203},{"n":"Chonchi","r":"Los Lagos","t":1,"lat":-42.62398,"lon":-73.77244},{"n":"Achao","r":"Los Lagos","t":2,"lat":-42.471,"lon":-73.48808},{"n":"Curaco de Vélez","r":"Los Lagos","t":2,"lat":-42.43966,"lon":-73.60284},{"n":"Quinchao","r":"Los Lagos","t":2,"lat":-42.53269,"lon":-73.27447},{"n":"Calbuco","r":"Los Lagos","t":2,"lat":-41.77121,"lon":-73.12754},{"n":"Maullín","r":"Los Lagos","t":2,"lat":-41.61601,"lon":-73.59507},{"n":"Hornopirén","r":"Los Lagos","t":1,"lat":-41.96605,"lon":-72.47068},{"n":"Chaitén","r":"Los Lagos","t":1,"lat":-42.91653,"lon":-72.70842},{"n":"Futaleufú","r":"Los Lagos","t":1,"lat":-43.18577,"lon":-71.8667},{"n":"Palena","r":"Los Lagos","t":2,"lat":-43.61783,"lon":-71.80396},{"n":"Puyehue","r":"Los Lagos","t":2,"lat":-40.71036,"lon":-72.38912},{"n":"Entre Lagos","r":"Los Lagos","t":2,"lat":-40.68356,"lon":-72.604},{"n":"Puerto Octay","r":"Los Lagos","t":2,"lat":-40.97276,"lon":-72.88422},{"n":"Fresia","r":"Los Lagos","t":2,"lat":-41.15314,"lon":-73.42231},{"n":"Purranque","r":"Los Lagos","t":2,"lat":-40.91281,"lon":-73.15819},{"n":"Río Negro","r":"Los Lagos","t":2,"lat":-40.79617,"lon":-73.21639},{"n":"San Pablo","r":"Los Lagos","t":2,"lat":-40.41276,"lon":-73.01158},{"n":"Cochamó","r":"Los Lagos","t":1,"lat":-41.49256,"lon":-72.30793},{"n":"Ensenada","r":"Los Lagos","t":2,"lat":-41.20819,"lon":-72.53867},{"n":"Pargua","r":"Los Lagos","t":2,"lat":-41.7915,"lon":-73.46034},{"n":"Cucao","r":"Los Lagos","t":1,"lat":-42.63802,"lon":-74.10922},{"n":"Pucatrihue","r":"Los Lagos","t":2,"lat":-40.53755,"lon":-73.71109},{"n":"Bahía Mansa","r":"Los Lagos","t":2,"lat":-40.58433,"lon":-73.7308},{"n":"Anticura","r":"Los Lagos","t":2,"lat":-40.66802,"lon":-72.17207},{"n":"Las Cascadas","r":"Los Lagos","t":2,"lat":-41.07877,"lon":-72.63717},{"n":"Los Muermos","r":"Los Lagos","t":2,"lat":-41.39606,"lon":-73.46172},{"n":"Quemchi","r":"Los Lagos","t":2,"lat":-42.14453,"lon":-73.47356},{"n":"Queilén","r":"Los Lagos","t":2,"lat":-42.88986,"lon":-73.47206},{"n":"Puqueldón","r":"Los Lagos","t":2,"lat":-42.59926,"lon":-73.67627},{"n":"Chepu","r":"Los Lagos","t":2,"lat":-42.04802,"lon":-73.9743},{"n":"Nercón","r":"Los Lagos","t":2,"lat":-42.50298,"lon":-73.78516},{"n":"Tenaún","r":"Los Lagos","t":2,"lat":-42.30439,"lon":-73.38747},{"n":"Isla Quinchao","r":"Los Lagos","t":2,"lat":-42.48403,"lon":-73.48517},{"n":"Caleta Puelche","r":"Los Lagos","t":2,"lat":-41.74221,"lon":-72.64985},{"n":"Villa Santa Lucía","r":"Los Lagos","t":2,"lat":-43.41308,"lon":-72.36625},{"n":"Lago Rupanco","r":"Los Lagos","t":2,"lat":-40.83246,"lon":-72.47063},{"n":"Antillanca","r":"Los Lagos","t":2,"lat":-40.77586,"lon":-72.2041},{"n":"Contao","r":"Los Lagos","t":2,"lat":-41.80246,"lon":-72.7187},{"n":"Pichicolo","r":"Los Lagos","t":2,"lat":-42.0048,"lon":-72.594},{"n":"Pumalín","r":"Los Lagos","t":2,"lat":-42.70656,"lon":-72.80368},{"n":"Coyhaique","r":"Aysén","t":1,"lat":-45.57118,"lon":-72.06849},{"n":"Puerto Aysén","r":"Aysén","t":1,"lat":-45.40682,"lon":-72.69768},{"n":"Chile Chico","r":"Aysén","t":1,"lat":-46.53966,"lon":-71.72458},{"n":"Cochrane","r":"Aysén","t":1,"lat":-47.25417,"lon":-72.57321},{"n":"Puerto Río Tranquilo","r":"Aysén","t":1,"lat":-46.62393,"lon":-72.67629},{"n":"Villa O'Higgins","r":"Aysén","t":1,"lat":-48.46848,"lon":-72.55925},{"n":"Puerto Cisnes","r":"Aysén","t":2,"lat":-44.72726,"lon":-72.68046},{"n":"Puerto Chacabuco","r":"Aysén","t":2,"lat":-45.46277,"lon":-72.81824},{"n":"Puyuhuapi","r":"Aysén","t":1,"lat":-44.32521,"lon":-72.55843},{"n":"La Junta","r":"Aysén","t":2,"lat":-43.97212,"lon":-72.4053},{"n":"Balmaceda","r":"Aysén","t":2,"lat":-45.90939,"lon":-71.69972},{"n":"Caleta Tortel","r":"Aysén","t":1,"lat":-47.80368,"lon":-73.53746},{"n":"Puerto Guadal","r":"Aysén","t":2,"lat":-46.84457,"lon":-72.70429},{"n":"Bahía Exploradores","r":"Aysén","t":2,"lat":-46.32253,"lon":-73.41436},{"n":"Mañihuales","r":"Aysén","t":2,"lat":-45.39526,"lon":-72.68682},{"n":"Lago Verde","r":"Aysén","t":2,"lat":-45.40656,"lon":-72.68128},{"n":"Puerto Ibáñez","r":"Aysén","t":2,"lat":-46.2919,"lon":-71.93749},{"n":"Melinka","r":"Aysén","t":2,"lat":-45.3972,"lon":-72.68717},{"n":"Raúl Marín Balmaceda","r":"Aysén","t":2,"lat":-43.77714,"lon":-72.95213},{"n":"Villa Mañihuales","r":"Aysén","t":2,"lat":-45.17283,"lon":-72.14698},{"n":"Puerto Bertrand","r":"Aysén","t":2,"lat":-47.01513,"lon":-72.82749},{"n":"Puerto Sánchez","r":"Aysén","t":2,"lat":-46.59186,"lon":-72.57817},{"n":"Villa Amengual","r":"Aysén","t":2,"lat":-44.74798,"lon":-72.2109},{"n":"Lago General Carrera","r":"Aysén","t":2,"lat":-46.72752,"lon":-72.46606},{"n":"Puerto Murta","r":"Aysén","t":2,"lat":-46.45857,"lon":-72.67264},{"n":"Villa Castillo","r":"Aysén","t":2,"lat":-46.12262,"lon":-72.15437},{"n":"Punta Arenas","r":"Magallanes","t":1,"lat":-53.16257,"lon":-70.90782},{"n":"Puerto Natales","r":"Magallanes","t":1,"lat":-51.7262,"lon":-72.506},{"n":"Porvenir","r":"Magallanes","t":1,"lat":-53.29567,"lon":-70.36874},{"n":"Puerto Williams","r":"Magallanes","t":1,"lat":-54.93577,"lon":-67.60625},{"n":"Cerro Sombrero","r":"Magallanes","t":1,"lat":-52.77646,"lon":-69.29091},{"n":"Cabo de Hornos","r":"Magallanes","t":2,"lat":-55.97897,"lon":-67.28903},{"n":"Puerto Edén","r":"Magallanes","t":2,"lat":-49.12568,"lon":-74.41335},{"n":"Villa Tehuelches","r":"Magallanes","t":2,"lat":-52.42704,"lon":-71.41416},{"n":"Río Verde","r":"Magallanes","t":2,"lat":-52.94555,"lon":-72.65127},{"n":"Laguna Blanca","r":"Magallanes","t":2,"lat":-52.42704,"lon":-71.41416},{"n":"Timaukel","r":"Magallanes","t":2,"lat":-54.15709,"lon":-69.37797},{"n":"Puerto Toro","r":"Magallanes","t":2,"lat":-55.08301,"lon":-67.07583},{"n":"San Gregorio","r":"Magallanes","t":2,"lat":-52.39666,"lon":-70.17177},{"n":"Primavera","r":"Magallanes","t":2,"lat":-52.70933,"lon":-69.29478},{"n":"Cameron","r":"Magallanes","t":2,"lat":-53.63972,"lon":-69.64633},{"n":"Villa Renoval","r":"Magallanes","t":2,"lat":-52.03815,"lon":-71.92179},{"n":"Fuerte Bulnes","r":"Magallanes","t":2,"lat":-53.63033,"lon":-70.91717},{"n":"Puerto Hambre","r":"Magallanes","t":2,"lat":-53.61009,"lon":-70.92893},{"n":"Río Seco","r":"Magallanes","t":2,"lat":-53.05598,"lon":-70.85661},{"n":"Puerto Yartou","r":"Magallanes","t":2,"lat":-53.88596,"lon":-70.14025}]/*GAZ_END*/;
+const GEO_MAX_RESULTS = 6;
+async function fetchNominatim(query, signal){
+  const params = new URLSearchParams({
+    q: query, format:'jsonv2', addressdetails:'1', limit:'8', countrycodes:'cl',
+  });
+  const res = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {signal, headers:{'Accept-Language':'es'}});
+  if(!res.ok) return [];
+  const data = await res.json();
+  const q = query.toLowerCase();
+  const okCat = ['place','natural','tourism','boundary','leisure','waterway','historic'];
+  const mapped = data.filter(item=> okCat.includes(item.category)).map(item=>{
+    const displayParts = item.display_name.split(',').map(s=>s.trim());
+    const name = displayParts[0];
+    const addr = item.address || {};
+    const cityLike = addr.city || addr.town || addr.village || addr.municipality || addr.county;
+    const subParts = [];
+    if(cityLike && cityLike.toLowerCase()!==name.toLowerCase()) subParts.push(cityLike);
+    if(addr.state) subParts.push(addr.state);
+    subParts.push('Chile');
+    return {
+      name, subLabel: subParts.join(', '),
+      lat: parseFloat(item.lat), lon: parseFloat(item.lon),
+      placeId: item.place_id, displayName: item.display_name,
+    };
+  });
+  mapped.sort((a,b)=>{
+    const an = a.name.toLowerCase(), bn = b.name.toLowerCase();
+    const rank = (n)=> n===q ? 0 : n.startsWith(q) ? 1 : 2;
+    return rank(an)-rank(bn);
+  });
+  return mapped;
+}
+function normText(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }
+function searchLocalPlaces(query){
+  const q = normText(query).trim();
+  if(!q) return [];
+  const long = q.length >= 3;
+  const seen = new Set();
+  const scored = [];
+  const consider = (name, sub, item, tier)=>{
+    const n = normText(name);
+    if(seen.has(n)) return;
+    let score = null;
+    if(n===q) score=0;
+    else if(n.startsWith(q)) score=1;
+    else if(n.split(/[\s,\-\/]+/).some(w=>w.startsWith(q))) score=2;
+    else if(long && n.includes(q)) score=3;
+    else if(long && normText(sub||'').split(/[\s,\-\/]+/).some(w=>w.startsWith(q))) score=4;
+    if(score===null) return;
+    seen.add(n);
+    scored.push({score, tier, name:n, item});
+  };
+  PLACES.forEach(p=> consider(p.name, p.city, { name:p.name, subLabel:p.city, lat:p.lat, lon:p.lon, placeId:null, linkedPlaceId:p.id }, 1.5));
+  CHILE_LUGARES.forEach(l=> consider(l.n, l.r, { name:l.n, subLabel:l.r+', Chile', lat:l.lat, lon:l.lon, placeId:null, linkedPlaceId:null }, l.t));
+  scored.sort((a,b)=> a.score-b.score || a.tier-b.tier || a.name.localeCompare(b.name,'es'));
+  return scored.map(s=>s.item);
+}
+function makeGeoSearcher(){
+  let timer=null, ctrl=null;
+  return function(query, cb, delay){
+    clearTimeout(timer);
+    if(ctrl){ ctrl.abort(); }
+    if(!query || query.trim().length<1){ cb([]); return; }
+    timer = setTimeout(()=>{
+      ctrl = new AbortController();
+      fetchNominatim(query.trim(), ctrl.signal).then(cb).catch(e=>{
+        if(e.name!=='AbortError'){ console.warn('Rüpü: búsqueda de lugares falló', e); cb([]); }
+      });
+    }, delay||350);
+  };
+}
+const searchWhereGeo = makeGeoSearcher();
+const searchMapGeo = makeGeoSearcher();
+/* Lo local se muestra al instante (máx. GEO_MAX_RESULTS). El refuerzo remoto (Chile) sólo se pide
+   con 3+ letras y si lo local no llenó la lista; así la lista nunca se vuelve interminable. */
+function runPlaceSearch(query, resultsElId, searcherFn, act, storeKey){
+  const box = document.getElementById(resultsElId);
+  if(!box) return;
+  const local = searchLocalPlaces(query).slice(0, GEO_MAX_RESULTS);
+  window[storeKey] = local;
+  const needRemote = normText(query).trim().length>=3 && local.length < GEO_MAX_RESULTS-1;
+  box.innerHTML = geoResultsHTML(local, act, needRemote) + (needRemote ? `<div class="geosuggest-loading"><span class="spinner"></span> Buscando en Chile…</div>` : '');
+  if(!needRemote){ searcherFn('', ()=>{}); return; }
+  searcherFn(query, (remote)=>{
+    const b = document.getElementById(resultsElId);
+    if(!b) return;
+    const extra = (remote||[]).filter(r=> !local.some(l=>normText(l.name)===normText(r.name)) );
+    const combined = local.concat(extra).slice(0, GEO_MAX_RESULTS+1);
+    window[storeKey] = combined;
+    b.innerHTML = geoResultsHTML(combined, act);
+  });
+}
+function geoResultsHTML(results, act, pending){
+  if(!results.length) return pending ? '' : `<div class="geosuggest-empty">${icon('x','icon-sm')} Sin resultados — puedes escribir el lugar igual.</div>`;
+  return results.map((r,i)=>`<button class="geosuggest-item" data-act="${act}" data-idx="${i}">
+    <div class="gs-ic">${icon('map','icon-sm')}</div>
+    <div class="gs-txt"><b>${r.name}</b>${r.subLabel?`<span>${r.subLabel}</span>`:''}</div>
+  </button>`).join('');
+}
+let mlSearchMarker = null;
+function placeSearchMarker(r){
+  if(mlSearchMarker){ try{ mlSearchMarker.remove(); }catch(e){} mlSearchMarker=null; }
+  if(!mlMap) return;
+  const el = document.createElement('div');
+  el.className = 'pin';
+  el.innerHTML = `<div class="dot" style="background:var(--accent)">${icon('locate')}</div>`;
+  mlSearchMarker = new maplibregl.Marker({element:el, anchor:'bottom'}).setLngLat([r.lon, r.lat]).addTo(mlMap);
+}
+
+function destroyMapLibre(){
+  if(mlMap){ try{ mlMap.remove(); }catch(e){} }
+  mlMap = null; mlMarkers = []; mlMeMarker = null; mlGeoControl = null; mlSearchMarker = null;
+}
+function clearMlMarkers(){
+  mlMarkers.forEach(m=>{ try{ m.remove(); }catch(e){} });
+  mlMarkers = [];
+}
+function placeMatchesFilter(p, f){
+  if(f==='todos') return true;
+  return p.cats ? p.cats.includes(f) : p.cat===f;
+}
+function addPlaceMarkers(){
+  if(!mlMap) return;
+  clearMlMarkers();
+  const visible = PLACES.filter(p => placeMatchesFilter(p, S.mapFilter));
+  visible.forEach(p=>{
+    const c = CATS[p.cat];
+    const el = document.createElement('div');
+    el.className = 'pin';
+    el.innerHTML = `<div class="dot" style="background:${c.color}">${icon(c.icon)}</div><div class="cnt">${p.visitors>99?'99+':p.visitors}</div>`;
+    el.addEventListener('click', (ev)=>{ ev.stopPropagation(); openPlace(p.id); });
+    const marker = new maplibregl.Marker({element:el, anchor:'bottom'}).setLngLat([p.lon, p.lat]).addTo(mlMap);
+    mlMarkers.push(marker);
+  });
+}
+function placeMeMarker(){
+  if(mlMeMarker){ try{ mlMeMarker.remove(); }catch(e){} mlMeMarker=null; }
+  if(!S.liveLoc || !mlMap) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'mapcharacter';
+  const meMark = ME.photo ? `<img class="mephoto" src="${ME.photo}" alt="">` : `<div class="medot"></div>`;
+  wrap.innerHTML = `<div class="radiusring"></div><div class="pulse"></div>${meMark}`;
+  mlMeMarker = new maplibregl.Marker({element:wrap, anchor:'bottom'}).setLngLat([S.liveLoc.lon, S.liveLoc.lat]).addTo(mlMap);
+}
+function initMapLibre(){
+  const container = document.getElementById('maplibreMap');
+  if(!container || typeof maplibregl==='undefined') return;
+  destroyMapLibre();
+  const start = S.mlView ? S.mlView.center : (S.liveLoc ? [S.liveLoc.lon, S.liveLoc.lat] : [LAGUNA_CHICUREO.lon, LAGUNA_CHICUREO.lat]);
+  const startZoom = S.mlView ? S.mlView.zoom : 12;
+  mlMap = new maplibregl.Map({
+    container,
+    style:'https://tiles.openfreemap.org/styles/liberty',
+    center:start, zoom:startZoom,
+    attributionControl:{ compact:true },
+  });
+  mlMap.addControl(new maplibregl.NavigationControl({showCompass:true}), 'top-right');
+  mlGeoControl = new maplibregl.GeolocateControl({
+    positionOptions:{ enableHighAccuracy:true },
+    trackUserLocation:true,
+    showUserHeading:true,
+  });
+  mlMap.addControl(mlGeoControl, 'top-right');
+  mlGeoControl.on('geolocate', (pos)=>{
+    S.liveLoc = { lat:pos.coords.latitude, lon:pos.coords.longitude };
+    placeMeMarker();
+    const hint = document.querySelector('.geohint');
+    if(hint) hint.remove();
+  });
+  mlMap.on('load', ()=>{ addPlaceMarkers(); placeMeMarker(); });
+  mlMap.on('moveend', ()=>{
+    const c = mlMap.getCenter();
+    S.mlView = { center:[c.lng, c.lat], zoom: mlMap.getZoom() };
+  });
+}
+function requestLiveLocation(){
+  if(mlGeoControl){ mlGeoControl.trigger(); return; }
+  toast('El mapa aún se está cargando, intenta de nuevo en un segundo');
+}
+function nearCarouselHTML(){
+  const visible = PLACES.filter(p => placeMatchesFilter(p, S.mapFilter));
+  return visible.map(p=>`<div class="placecard" data-act="open-place" data-id="${p.id}">
+      ${sceneHTML(p.cat, '', '', p.photo)}
+      <div class="pc-body"><b>${p.name}</b><div class="meta">${starsHTML(p.rating)} · ${p.dist}</div></div>
+    </div>`).join('');
+}
+
+function renderMapa(){
+  const filters = ['todos','montana','surf','playas','trekking','volcan','naturaleza','cultura','mirador','aventura','acuaticos','camping','astroturismo','comida','skate'];
+  return `
+  <div class="mapwrap">
+    <div class="maplibreOuter">
+      <div id="maplibreMap" class="maplibreMap"></div>
+      <div class="mapsearch">
+        <div class="searchbar">${icon('search','icon-sm')}<input type="text" id="mapSearchInput" autocomplete="off" placeholder="Buscar lugar, dirección…"></div>
+        <div class="mapsearch-results" id="mapSearchResults"></div>
+      </div>
+      <div class="mapfloat">
+        <button class="iconbtn" data-act="locate">${icon('locate')}</button>
+        <button class="iconbtn" data-act="zoom-in">${icon('plus')}</button>
+        <button class="iconbtn" data-act="zoom-out">${icon('minus')}</button>
+      </div>
+      ${!S.liveLoc? `<div class="geohint">${icon('locate','icon-sm')} Toca el ícono de ubicación para verte en vivo</div>` : ''}
+    </div>
+    <div class="nearsheet">
+      <div class="handle"></div>
+      <div class="hscroll" style="padding-left:0;padding-right:0;margin-bottom:4px;">
+        ${filters.map(f=>`<button class="chip ${S.mapFilter===f?'active':''}" data-act="map-filter" data-cat="${f}">
+          ${f!=='todos'?`<span class="sw" style="background:${CATS[f].color}"></span>`:''}${f==='todos'?'Todos':CATS[f].label}
+        </button>`).join('')}
+      </div>
+      <div class="section-title" style="padding:0;margin:14px 0 8px;"><h3>🔥 Cerca de ti</h3></div>
+      <div class="hscroll" id="nearCarousel" style="padding-left:0;padding-right:0;">${nearCarouselHTML()}</div>
+    </div>
+  </div>`;
+}
+
+/* ---------------- ACTIVIDADES ---------------- */
+function renderActividades(){
+  const cats = Object.keys(CATS);
+  return `
+  ${topbarHTML('Actividades')}
+  <div class="hscroll">
+    ${cats.map(c=>`<button class="chip" data-act="noop">${icon(CATS[c].icon,'icon-sm')} ${CATS[c].label}</button>`).join('')}
+  </div>
+  <div class="section-title"><h3>🏆 Tus desafíos</h3><span class="see">Ver todos</span></div>
+  <div class="hscroll">
+    ${CHALLENGES.map(c=>{
+      const cat = CATS[c.cat];
+      const pct = Math.round(c.done/c.total*100);
+      return `<div class="challengecard" data-act="open-challenge" data-id="${c.id}">
+        ${sceneHTML(c.cat)}
+        <div class="cc-body">
+          <b>${c.title}</b>
+          <div class="barbg"><div class="barfill" style="width:${pct}%"></div></div>
+          <div class="prog-lbl"><span>${c.done}/${c.total} completado</span><span>${pct}%</span></div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>
+  <div class="section-title"><h3>Experiencias cerca de ti</h3></div>
+  <div class="explist">
+    ${EXPERIENCES.map(e=>`<div class="expcard" data-act="open-exp" data-id="${e.id}">
+      ${sceneHTML(e.cat)}
+      <div class="info"><b>${e.title}</b><span style="font-size:11.5px;color:var(--text-faint);">${e.place}</span>
+        <div class="meta"><span>${icon('user','icon-sm')} ${e.people} interesados</span><span>${e.diff}</span></div>
+      </div>
+    </div>`).join('')}
+  </div>
+  <div style="height:6px;"></div>`;
+}
+
+/* ---------------- PERFIL ---------------- */
+function myPhotosTabHTML(u){
+  const photos = u.myPhotos || [];
+  const isMe = u.id==='me';
+  return `<div class="grid3">
+    ${isMe ? `
+    <label class="myphoto-add" for="myPhotoCameraInput">${icon('camera')}<span>Cámara</span></label>
+    <label class="myphoto-add" for="myPhotoGalleryInput">${icon('photo')}<span>Galería</span></label>` : ''}
+    ${photos.map(p=>`<div class="myphoto-cell" style="background-image:url('${p.url}');">
+      ${isMe?`<button class="removephoto" data-act="remove-my-photo" data-id="${p.id}">${icon('x','icon-sm')}</button>`:''}
+    </div>`).join('')}
+  </div>
+  ${isMe? `<input type="file" accept="image/*" id="myPhotoGalleryInput" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
+  <input type="file" accept="image/*" capture="environment" id="myPhotoCameraInput" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">` : ''}
+  ${(!photos.length && !isMe) ? `<div class="emptystate">${icon('camera','ic')}<b>Sin fotos todavía</b></div>` : ''}`;
+}
+function renderPerfil(u, isMe){
+  const tabs = [['posts','Publicaciones'],['saved','Guardados'],['photos','Mis fotos'],['badges','Logros']];
+  const myPosts = POSTS.filter(p=>p.user===u.id);
+  const saved = PLACES.filter(p=>p.saved);
+  const badges = [
+    {label:'Primer paso', desc:'Tu primer lugar', icon:'flag', color:'var(--accent)', on:true},
+    {label:'Explorador', desc:'25 lugares', icon:'compass', color:'var(--water)', on:true},
+    {label:'Aventurero', desc:'10 actividades', icon:'run', color:'var(--moss)', on:true},
+    {label:'Fotógrafo', desc:'10 fotos subidas', icon:'camera', color:'var(--plum)', on:true},
+    {label:'Costero', desc:'5 playas', icon:'wave', color:'var(--sand)', on:false},
+    {label:'Influencer', desc:'100 seguidores', icon:'star', color:'var(--sky)', on:true},
+  ];
+  return `
+  <div class="topbar">
+    <div class="wm"><b style="font-size:19px;">${u.name}${u.verified?verifiedBadge():''}</b></div>
+    <div class="actions">
+      ${isMe? `<button class="iconbtn" data-act="open-settings">${icon('settings')}</button>` : `<button class="iconbtn" data-act="close-overlay">${icon('x')}</button>`}
+    </div>
+  </div>
+  <div class="profhead">
+    <div class="row1">
+      ${avatarHTML(u,78,false,isMe)}
+      <div class="id"><b>${u.name}${u.verified?verifiedBadge():''}</b><span>${u.handle||('@'+u.id)}</span>
+        <div class="lvlrow"><span class="lvltag">Nivel ${u.level}</span><span class="xp mono">${u.xp?u.xp+' / '+u.xpNext+' XP':''}</span></div>
+      </div>
+    </div>
+    ${u.xp?`<div class="barbg" style="margin-top:12px;"><div class="barfill" style="width:${Math.round(u.xp/u.xpNext*100)}%"></div></div>`:''}
+    <p class="bio">${u.bio}</p>
+    <div class="taglist">${u.tags.map(t=>`<span class="taglet">${icon(CATS[t].icon,'icon-sm')} ${CATS[t].label}</span>`).join('')}</div>
+  </div>
+  ${(isMe && !u.verified) ? `<div class="verifycard" data-act="open-verify">
+    <div class="vc-ic">${icon('user','icon-sm')}</div>
+    <div class="vc-txt"><b>Verifica tu identidad</b><span>Escaneo facial rápido · gana la insignia de perfil verificado</span></div>
+    ${icon('chevronright','icon-sm')}
+  </div>` : ''}
+  <div class="statrow">
+    <div class="st"><b class="mono">${u.places}</b><span>LUGARES</span></div>
+    <div class="st"><b class="mono">${u.activities}</b><span>ACTIVIDADES</span></div>
+    <div class="st"><b class="mono">${u.followers}</b><span>SEGUIDORES</span></div>
+    <div class="st"><b class="mono">${u.following}</b><span>SIGUIENDO</span></div>
+  </div>
+  <div class="profactions">
+    ${isMe
+      ? `<button class="btn btn-ghost btn-block" data-act="open-edit-profile">${icon('settings','icon-sm')} Editar perfil</button>`
+      : `<button class="btn btn-accent btn-block" data-act="toggle-follow" data-id="${u.id}">${S.following && S.following.has(u.id) ? 'Siguiendo' : 'Seguir'}</button>
+         <button class="btn btn-line" data-act="noop">Mensaje</button>`}
+  </div>
+  <div class="tabs">
+    ${tabs.map(([k,l])=>`<button class="tabitem ${S.profileTab===k?'active':''}" data-act="prof-tab" data-tab="${k}">${l}</button>`).join('')}
+  </div>
+  ${S.profileTab==='posts' ? (myPosts.length ? `<div class="grid3">${myPosts.map(p=>sceneHTML(p.cat, '', '', p.photo)).join('')}</div>` :
+      `<div class="emptystate">${icon('camera','ic')}<b>Sin publicaciones todavía</b><span>Cuando compartas una experiencia, aparecerá aquí.</span></div>`) : ''}
+  ${S.profileTab==='saved' ? `<div class="savedgrid">${saved.map(p=>`<div class="placecard" style="width:100%;display:flex;flex-direction:row;" data-act="open-place" data-id="${p.id}">
+      <div style="width:96px;flex:none;">${sceneHTML(p.cat, '', '', p.photo)}</div>
+      <div class="pc-body" style="flex:1;"><b>${p.name}</b><div class="meta">${starsHTML(p.rating)} · ${p.city}</div></div>
+    </div>`).join('')}</div>` : ''}
+  ${S.profileTab==='photos' ? myPhotosTabHTML(u) : ''}
+  ${S.profileTab==='badges' ? `<div class="badgegrid">${badges.map(b=>`<div class="badgecell ${b.on?'':'locked'}">
+      <div class="bi" style="background:${b.color}22;color:${b.color}">${icon(b.icon)}</div><b>${b.label}</b><span>${b.desc}</span>
+    </div>`).join('')}</div>` : ''}
+  <div style="height:16px;"></div>`;
+}
+
+/* ---------------- SHEET: crear ---------------- */
+function renderCreateSheet(){
+  const opts = [
+    {t:'post', label:'Publicación', desc:'Comparte una foto o experiencia', ic:'photo', color:'var(--accent)'},
+    {t:'lugar', label:'Lugar', desc:'Sugiere un nuevo punto en el mapa', ic:'map', color:'var(--water)'},
+    {t:'actividad', label:'Actividad', desc:'Crea un desafío para la comunidad', ic:'trophy', color:'var(--sand)'},
+    {t:'evento', label:'Evento', desc:'Organiza una salida grupal', ic:'flag', color:'var(--plum)'},
+  ];
+  return `
+  <div class="handle"></div>
+  <div class="sheethead"><h3>Crear</h3><button class="backbtn" data-act="close-sheet">${icon('x','icon-sm')}</button></div>
+  <div class="sheet-scroll">
+    <div class="createGrid">
+      ${opts.map(o=>`<button class="createOpt" data-act="open-create-form" data-type="${o.t}">
+        <div class="ic" style="background:${o.color}22;color:${o.color}">${icon(o.ic)}</div>
+        <b>${o.label}</b><span>${o.desc}</span>
+      </button>`).join('')}
+    </div>
+  </div>`;
+}
+
+function uploadAreaHTML(){
+  const hasPhoto = !!(S.draft && S.draft.photo);
+  if(hasPhoto){
+    return `<div class="photopreviewbox" style="background-image:url('${S.draft.photo}');">
+      <button class="removephoto" data-act="remove-draft-photo" type="button">${icon('x','icon-sm')}</button>
+    </div>`;
+  }
+  return `<div class="uploadrow">
+    <label class="uploadopt" for="createCameraInput">${icon('camera')}<span>Sacar foto</span></label>
+    <label class="uploadopt" for="createPhotoInput">${icon('photo')}<span>Galería</span></label>
+  </div>`;
+}
+function placeChooserHTML(){
+  return PLACES.map(p=>`<button class="chip ${S.draft.locationText===p.name?'active':''}" data-act="pick-place" data-name="${p.name}">${p.name}</button>`).join('');
+}
+function postLocationLabel(post){
+  if(post.locationText) return post.locationText;
+  const pl = placeById(post.place);
+  return pl ? pl.name : '';
+}
+function renderCreateForm(type){
+  const meta = {
+    post:{title:'Nueva publicación', cta:'Publicar'},
+    lugar:{title:'Sugerir lugar', cta:'Enviar a revisión'},
+    actividad:{title:'Nuevo desafío', cta:'Crear desafío'},
+    evento:{title:'Nuevo evento', cta:'Publicar evento'},
+  }[type];
+  const catChips = Object.keys(CATS).map(c=>`<button class="chip ${S.draft.cat===c?'active':''}" data-act="pick-cat" data-cat="${c}"><span class="sw" style="background:${CATS[c].color}"></span>${CATS[c].label}</button>`).join('');
+  return `
+  <div class="sheethead"><button class="backbtn" data-act="back-to-create">${icon('chevronleft','icon-sm')}</button><h3>${meta.title}</h3></div>
+  <div class="sheet-scroll">
+    <div id="uploadArea">${uploadAreaHTML()}</div>
+    <input type="file" accept="image/*" id="createPhotoInput" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
+    <input type="file" accept="image/*" capture="environment" id="createCameraInput" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
+    ${type==='lugar' ? `<div class="locpick">${icon('map','icon-sm')} Ubicación seleccionada: <b style="margin-left:auto;">${S.liveLoc?'Tu ubicación actual':'Laguna de Chicureo'}</b></div>` : ''}
+    <div class="field"><label>${type==='post'?'Descripción':'Nombre'}</label>
+      <input placeholder="${type==='post'?'Cuenta cómo estuvo la experiencia…':'Ej: Playa Escondida'}"></div>
+    ${type==='actividad' ? `<div class="field"><label>Meta del desafío</label><input placeholder="Ej: Visita 5 miradores"></div>` : ''}
+    ${type==='evento' ? `<div class="field"><label>Fecha y hora</label><input placeholder="Sáb 24 de mayo · 10:00"></div>` : ''}
+    <div class="field"><label>Categoría</label></div>
+    <div class="chooserow">${catChips}</div>
+    ${type==='post' ? `
+    <div class="field"><label>📍 ¿Dónde fue?</label>
+      <div class="geosuggest-wrap">
+        <input type="text" id="wherePlaceInput" autocomplete="off" placeholder="Busca un lugar (ej: Pichilemu, Infiernillo)…" value="${(S.draft.locationText||'').replace(/"/g,'&quot;')}">
+      </div>
+    </div>
+    <div class="geosuggest-results" id="whereResults"></div>
+    <div class="eyebrow" style="padding:0 18px 8px;">Lugares destacados de Rüpü</div>
+    <div class="chooserow" id="placeChooser">${placeChooserHTML()}</div>` : ''}
+    ${type!=='post' ? `<div class="field"><label>Descripción</label><textarea rows="3" placeholder="Cuenta qué encontrarán acá…"></textarea></div>` : ''}
+    <div class="field" style="padding-top:4px;">
+      <button class="btn btn-accent btn-block" data-act="submit-create">${meta.cta}</button>
+    </div>
+  </div>`;
+}
+
+/* ---------------- PLACE DETAIL ---------------- */
+function renderPlaceDetail(id){
+  const p = placeById(id);
+  const c = CATS[p.cat];
+  const by = userById(p.by);
+  return `
+  <div class="heroscene">
+    ${sceneHTML(p.cat, '', '', p.photo)}
+    <div class="grad"></div>
+    <div class="top">
+      <button class="iconbtn" data-act="close-overlay">${icon('chevronleft')}</button>
+      <button class="iconbtn" data-act="save-place" data-id="${p.id}">${icon('bookmark')}</button>
+    </div>
+  </div>
+  <div class="detail-body">
+    <h2>${p.name}</h2>
+    <div class="metarow">
+      <span class="star">${icon('star','icon-sm')}</span><span>${p.rating} (${p.ratings})</span>
+      <span>·</span><span>${icon(c.icon,'icon-sm')} ${c.label}</span>
+      <span>·</span><span>${icon('map','icon-sm')} ${p.dist}</span>
+    </div>
+    <div class="by">${avatarHTML(by,26)}<span>Descubierto por <b>${by.name}${by.verified?verifiedBadge():''}</b></span>
+      <div class="avatarstack" style="margin-left:auto;">${[USERS.mateo,USERS.fer,USERS.sofi,ME].map(u=>avatarHTML(u,26)).join('')}<span style="margin-left:6px;color:var(--text-faint);font-size:11.5px;align-self:center;">+${p.visitors}</span></div>
+    </div>
+  </div>
+  <div class="actionrow">
+    <button class="btn ${p.visited?'btn-ghost':'btn-accent'} btn-block" data-act="toggle-visited" data-id="${p.id}">${icon(p.visited?'check':'flag','icon-sm')} ${p.visited?'Estuviste aquí':'He estado aquí'}</button>
+    <button class="btn btn-line" data-act="directions">${icon('locate','icon-sm')}</button>
+    <button class="btn btn-line" data-act="share">${icon('share','icon-sm')}</button>
+  </div>
+  <div class="tabs">
+    <button class="tabitem ${S.placeTab==='info'?'active':''}" data-act="place-tab" data-tab="info">Info</button>
+    <button class="tabitem ${S.placeTab==='fotos'?'active':''}" data-act="place-tab" data-tab="fotos">Fotos</button>
+    <button class="tabitem ${S.placeTab==='actividades'?'active':''}" data-act="place-tab" data-tab="actividades">La gente hace</button>
+  </div>
+  ${S.placeTab==='info' ? `<p class="desc">${p.desc}</p>
+    <div class="section-title" style="padding:0 18px;margin:0 0 10px;"><h3 style="font-size:14px;">Comentarios recientes</h3></div>
+    <div class="desc" style="margin-bottom:6px;"><b style="color:var(--text)">${USERS.mateo.name}: </b>increíble lugar, volvería mil veces.</div>
+    <div class="desc"><b style="color:var(--text)">${USERS.fer.name}: </b>¿a qué hora es mejor ir?</div>` : ''}
+  ${S.placeTab==='fotos' ? `<div class="photogrid">${Array.from({length:6}).map(()=>sceneHTML(p.cat)).join('')}</div>` : ''}
+  ${S.placeTab==='actividades' ? `<div class="hscroll">
+      ${[CATS[p.cat].label,'Fotografía','Picnic'].map(l=>`<span class="chip">${l}</span>`).join('')}
+    </div>
+    <div class="explist" style="margin-top:8px;">${POSTS.filter(po=>po.place===p.id).map(po=>{
+      const u = userById(po.user);
+      return `<div class="expcard">${sceneHTML(po.cat)}<div class="info"><b>${u.name}</b><span style="font-size:11.5px;color:var(--text-faint);">${po.caption.slice(0,54)}…</span></div></div>`;
+    }).join('') || `<div class="emptystate" style="padding:30px;"><span>Todavía no hay publicaciones etiquetadas aquí.</span></div>`}</div>` : ''}
+  <div style="height:16px;"></div>`;
+}
+
+/* ---------------- CHALLENGE / EXPERIENCE DETAIL ---------------- */
+function renderChallengeDetail(id){
+  const c = CHALLENGES.find(x=>x.id===id);
+  const cat = CATS[c.cat];
+  const pct = Math.round(c.done/c.total*100);
+  return `
+  <div class="heroscene" style="height:180px;">
+    ${sceneHTML(c.cat)}
+    <div class="grad"></div>
+    <div class="top"><button class="iconbtn" data-act="close-overlay">${icon('chevronleft')}</button><div></div></div>
+  </div>
+  <div class="detail-body">
+    <h2>${c.title}</h2>
+    <div class="metarow"><span>${icon(cat.icon,'icon-sm')} ${cat.label}</span><span>·</span><span>${icon('trophy','icon-sm')} Desafío de comunidad</span></div>
+  </div>
+  <div class="progresswrap">
+    <div class="barbg"><div class="barfill" style="width:${pct}%"></div></div>
+    <div class="prog-lbl" style="margin-top:8px;"><span>${c.done} de ${c.total} completados</span><span>${pct}%</span></div>
+  </div>
+  <div class="steplist">
+    ${c.steps.map((s,i)=>`<div class="stepitem ${s.done?'done':''}">
+      <div class="chk">${s.done?icon('check','icon-sm'):''}</div>
+      <div class="txt"><b>${s.label}</b><span>${s.done?'Completado':'Pendiente'}</span></div>
+    </div>`).join('')}
+  </div>
+  <div class="rewardcard">
+    <div class="rw-icon">${icon('gift')}</div>
+    <div><b>Recompensa</b><span>${c.reward}</span></div>
+  </div>
+  <div class="field">
+    <button class="btn btn-accent btn-block" data-act="accept-challenge" data-id="${c.id}">${pct===100?'¡Desafío completado!':'Continuar desafío'}</button>
+  </div>`;
+}
+function renderExpDetail(id){
+  const e = EXPERIENCES.find(x=>x.id===id);
+  const cat = CATS[e.cat];
+  return `
+  <div class="heroscene" style="height:200px;">
+    ${sceneHTML(e.cat)}
+    <div class="grad"></div>
+    <div class="top"><button class="iconbtn" data-act="close-overlay">${icon('chevronleft')}</button><button class="iconbtn" data-act="save-generic">${icon('bookmark')}</button></div>
+  </div>
+  <div class="detail-body">
+    <h2>${e.title}</h2>
+    <div class="metarow"><span>${icon(cat.icon,'icon-sm')} ${cat.label}</span><span>·</span><span>${icon('map','icon-sm')} ${e.place}</span><span>·</span><span>Dificultad: ${e.diff}</span></div>
+    <div class="by">${[USERS.valen,USERS.mateo,USERS.javi].map(u=>avatarHTML(u,26)).join('')}<span style="margin-left:6px;">${e.people} personas interesadas</span></div>
+  </div>
+  <p class="desc">Experiencia guiada por la comunidad de Rüpü. Sumate, coordina con otros exploradores en el chat del evento y sube tu registro cuando la completes para ganar XP.</p>
+  <div class="field"><button class="btn btn-accent btn-block" data-act="join-exp" data-id="${e.id}">Unirme a la experiencia</button></div>`;
+}
+
+/* ---------------- SEARCH / NOTIFS / SETTINGS / REPORT ---------------- */
+function renderSearch(){
+  const q = (S.query||'').toLowerCase().trim();
+  const tabs = ['todo','personas','lugares','actividades'];
+  let results = [];
+  if(q){
+    if(S.searchTab==='todo'||S.searchTab==='personas') results.push(...Object.values(USERS).concat([ME]).filter(u=>u.name.toLowerCase().includes(q)).map(u=>({type:'user',data:u})));
+    if(S.searchTab==='todo'||S.searchTab==='lugares') results.push(...PLACES.filter(p=>p.name.toLowerCase().includes(q)||p.city.toLowerCase().includes(q)).map(p=>({type:'place',data:p})));
+    if(S.searchTab==='todo'||S.searchTab==='actividades') results.push(...EXPERIENCES.filter(e=>e.title.toLowerCase().includes(q)).map(e=>({type:'exp',data:e})));
+  }
+  return `
+  <div class="sheethead"><h3>Buscar</h3><button class="backbtn" data-act="close-overlay">${icon('x','icon-sm')}</button></div>
+  <div class="searchinput">${icon('search','icon-sm')}<input id="searchbox" placeholder="Personas, lugares, actividades…" value="${S.query||''}"></div>
+  <div class="hscroll" style="padding-top:0;">${tabs.map(t=>`<button class="chip ${S.searchTab===t?'active':''}" data-act="search-tab" data-tab="${t}">${t[0].toUpperCase()+t.slice(1)}</button>`).join('')}</div>
+  <div class="sheet-scroll">
+  ${!q ? `<div class="emptystate">${icon('search','ic')}<b>Busca en Rüpü</b><span>Encuentra exploradores, lugares o actividades cerca de ti.</span></div>` :
+    results.length===0 ? `<div class="emptystate">${icon('x','ic')}<b>Sin resultados para "${S.query}"</b><span>Prueba con otro nombre o categoría.</span></div>` :
+    results.map(r=>{
+      if(r.type==='user') return `<div class="listrow" style="cursor:pointer;" data-act="open-profile" data-id="${r.data.id}">${avatarHTML(r.data,40)}<div class="txt"><b>${r.data.name}${r.data.verified?verifiedBadge():''}</b><span>Nivel ${r.data.level} · ${r.data.followers} seguidores</span></div></div>`;
+      if(r.type==='place') return `<div class="listrow" style="cursor:pointer;" data-act="open-place" data-id="${r.data.id}"><div style="width:44px;height:44px;border-radius:12px;overflow:hidden;">${sceneHTML(r.data.cat)}</div><div class="txt"><b>${r.data.name}</b><span>${r.data.city}</span></div></div>`;
+      return `<div class="listrow" style="cursor:pointer;" data-act="open-exp" data-id="${r.data.id}"><div style="width:44px;height:44px;border-radius:12px;overflow:hidden;">${sceneHTML(r.data.cat)}</div><div class="txt"><b>${r.data.title}</b><span>${r.data.place}</span></div></div>`;
+    }).join('')}
+  </div>`;
+}
+function renderNotifs(){
+  return `
+  <div class="sheethead"><h3>Notificaciones</h3><button class="backbtn" data-act="close-overlay">${icon('x','icon-sm')}</button></div>
+  <div class="sheet-scroll">
+    ${NOTIFS.map(n=>`<div class="notif"><div class="ni" style="background:${n.color}22;color:${n.color}">${icon(n.icon,'icon-sm')}</div><div class="txt">${n.txt}<span class="time">${n.time}</span></div></div>`).join('')}
+  </div>`;
+}
+function renderSettings(){
+  const rows = [
+    {k:'privateAcc', b:'Cuenta privada', d:'Solo tus seguidores ven tus publicaciones'},
+    {k:'approxLoc', b:'Ubicación aproximada', d:'Muestra tu zona, no tu punto exacto'},
+    {k:'pushNotif', b:'Notificaciones push', d:'Likes, comentarios y logros'},
+  ];
+  return `
+  <div class="sheethead"><button class="backbtn" data-act="close-overlay">${icon('chevronleft','icon-sm')}</button><h3>Configuración</h3></div>
+  <div class="sheet-scroll">
+    <div class="eyebrow" style="padding:0 18px 6px;">Privacidad</div>
+    ${rows.map(r=>`<div class="listrow"><div class="txt"><b>${r.b}</b><span>${r.d}</span></div><div class="switch ${S[r.k]?'on':''}" data-act="toggle-setting" data-k="${r.k}"></div></div>`).join('')}
+    <div class="eyebrow" style="padding:20px 18px 6px;">Cuenta</div>
+    <div class="listrow" style="cursor:pointer;" data-act="open-verify"><div class="txt"><b>Verificación de identidad</b><span>${ME.verified?'Verificado ✓':'Verifica tu perfil con un escaneo facial'}</span></div>${icon('chevronright','icon-sm')}</div>
+    <div class="listrow" style="cursor:pointer;" data-act="noop"><div class="txt"><b>Bloqueados y reportes</b><span>Gestiona usuarios bloqueados</span></div>${icon('chevronright','icon-sm')}</div>
+    <div class="listrow" style="cursor:pointer;" data-act="noop"><div class="txt"><b>Descargar mis datos</b><span>Copia de tu actividad en Rüpü</span></div>${icon('chevronright','icon-sm')}</div>
+    <div class="field" style="padding-top:20px;"><button class="btn btn-line btn-block" data-act="logout">Cerrar sesión</button></div>
+  </div>`;
+}
+function renderReport(){
+  const reasons = ['Spam o publicidad','Contenido ofensivo','Información falsa del lugar','Suplantación de identidad','Otro motivo'];
+  return `<h3 style="margin-bottom:4px;">Reportar</h3>
+  <p style="font-size:12.5px;color:var(--text-faint);margin:0 0 14px;">Cuéntanos qué está pasando. Nuestro equipo revisa cada reporte.</p>
+  ${reasons.map((r,i)=>`<div class="radiorow ${S.reportReason===i?'sel':''}" data-act="pick-reason" data-i="${i}"><div class="rd"></div>${r}</div>`).join('')}
+  <div style="display:flex;gap:8px;margin-top:18px;">
+    <button class="btn btn-ghost btn-block" data-act="close-overlay">Cancelar</button>
+    <button class="btn btn-accent btn-block" data-act="submit-report">Enviar</button>
+  </div>`;
+}
+
+/* ---------------- EDITAR PERFIL (foto real + identidad) ---------------- */
+function editPhotoAreaHTML(){
+  const hasPhoto = !!ME.photo;
+  if(hasPhoto){
+    return `<div class="photopreviewbox" style="height:160px;background-image:url('${ME.photo}');">
+      <button class="removephoto" data-act="remove-profile-photo" type="button">${icon('x','icon-sm')}</button>
+    </div>`;
+  }
+  return `<div class="uploadrow">
+    <label class="uploadopt" for="profilePhotoCameraInput">${icon('camera')}<span>Tomar foto</span></label>
+    <label class="uploadopt" for="profilePhotoGalleryInput">${icon('photo')}<span>Galería</span></label>
+  </div>`;
+}
+function renderEditProfile(){
+  return `
+  <div class="sheethead"><button class="backbtn" data-act="close-overlay">${icon('chevronleft','icon-sm')}</button><h3>Editar perfil</h3></div>
+  <div class="sheet-scroll">
+    <div class="field"><label>Foto de perfil</label></div>
+    <div id="editPhotoArea">${editPhotoAreaHTML()}</div>
+    <input type="file" accept="image/*" id="profilePhotoGalleryInput" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
+    <input type="file" accept="image/*" capture="environment" id="profilePhotoCameraInput" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
+
+    <div class="field"><label>Nombre</label><input id="editNameInput" value="${(ME.name||'').replace(/"/g,'&quot;')}"></div>
+    <div class="field"><label>Usuario</label><input id="editHandleInput" value="${(ME.handle||'').replace(/"/g,'&quot;')}"></div>
+    <div class="field"><label>Biografía</label><textarea id="editBioInput" rows="3">${ME.bio||''}</textarea></div>
+
+    <div class="field" style="padding-top:4px;">
+      <button class="btn btn-accent btn-block" data-act="save-edit-profile">Guardar cambios</button>
+    </div>
+  </div>`;
+}
+
+/* ---------------- VERIFICACIÓN DE IDENTIDAD ---------------- */
+function renderVerify(){
+  if(S.verifyStep==='scan'){
+    return `
+    <div class="sheethead"><button class="backbtn" data-act="close-overlay">${icon('x','icon-sm')}</button><h3>Verificación</h3></div>
+    <div class="sheet-scroll">
+      <div class="camwrap">
+        <div class="camfeed"></div>
+        <svg class="camguide" viewBox="0 0 200 200"><ellipse cx="100" cy="104" rx="62" ry="80" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="8 7" opacity=".85"/></svg>
+        <div class="camscan"></div>
+      </div>
+      <p class="desc" style="text-align:center;padding:18px 24px 0;">Alinea tu rostro dentro del marco y mantente quieto…</p>
+    </div>`;
+  }
+  if(S.verifyStep==='done'){
+    return `
+    <div class="sheethead"><button class="backbtn" data-act="close-overlay">${icon('x','icon-sm')}</button><h3>Verificación</h3></div>
+    <div class="sheet-scroll" style="text-align:center;padding-top:30px;">
+      <div class="verifydone">${icon('check','icon-lg')}</div>
+      <h2 style="font-size:22px;margin:20px 0 8px;">¡Identidad verificada!</h2>
+      <p class="desc" style="text-align:center;">Ya tienes la insignia de perfil verificado en Rüpü. Tu foto de verificación no se hace pública.</p>
+      <div class="field" style="padding-top:14px;"><button class="btn btn-accent btn-block" data-act="close-overlay">Listo</button></div>
+    </div>`;
+  }
+  return `
+  <div class="sheethead"><button class="backbtn" data-act="close-overlay">${icon('x','icon-sm')}</button><h3>Verificación</h3></div>
+  <div class="sheet-scroll">
+    <div class="verifyhero"><div class="vh-ic">${icon('user','icon-lg')}</div></div>
+    <div class="detail-body" style="padding-top:4px;">
+      <h2 style="font-size:20px;margin-bottom:10px;">Verifica tu identidad</h2>
+      <p class="desc" style="padding:0;margin-bottom:18px;">Usamos un escaneo facial rápido para confirmar que eres una persona real. Así protegemos a la comunidad de cuentas falsas y perfiles duplicados.</p>
+    </div>
+    <div class="verifypoints">
+      <div class="vp-row">${icon('check','icon-sm')}<span>Obtienes la insignia de perfil verificado</span></div>
+      <div class="vp-row">${icon('check','icon-sm')}<span>Genera más confianza al crear lugares y actividades</span></div>
+      <div class="vp-row">${icon('check','icon-sm')}<span>Tu foto de verificación nunca se hace pública</span></div>
+    </div>
+    <div class="field" style="padding-top:10px;"><button class="btn btn-accent btn-block" data-act="verify-start">Comenzar verificación</button></div>
+  </div>`;
+}
+
+/* ---------------- ONBOARDING ---------------- */
+function renderOnboarding(){
+  if(S.obStep==='splash'){
+    return `<div class="obwrap"><div class="ob-splash">
+      <div class="glow"></div>
+      <div class="mark">${icon('compass').replace(/class="icon "/,'class="icon" style="stroke:#1c0a03;width:40px;height:40px;stroke-width:1.8;"')}</div>
+      <h1>Rüpü</h1><p>Descubre, explora, vive, comparte.</p>
+      <div class="go"><button class="btn btn-accent btn-block" data-act="ob-go" data-step="interests">Comenzar</button></div>
+    </div></div>`;
+  }
+  const interestList = Object.keys(CATS);
+  return `<div class="obwrap"><div class="ob-scroll">
+    <div class="eyebrow ob-eyebrow">Último paso</div>
+    <h2>¿Qué te gusta hacer?</h2>
+    <p class="sub">Elige tus intereses para que tu mapa y tu feed empiecen ajustados a ti. Puedes cambiarlos cuando quieras.</p>
+    <div class="interestgrid">
+      ${interestList.map(k=>{
+        const c = CATS[k]; const sel = S.interests.has(k);
+        return `<button class="interestcell ${sel?'sel':''}" data-act="toggle-interest" data-k="${k}">
+          <div class="ic" style="background:${c.color}22;color:${c.color}">${icon(c.icon)}</div><b>${c.label}</b>
+        </button>`;
+      }).join('')}
+    </div>
+  </div>
+  <div class="ob-foot"><button class="btn btn-accent btn-block" data-act="ob-finish">Continuar (${S.interests.size})</button></div></div>`;
+}
+
+/* ---------------- master render ---------------- */
+const TABS = [
+  {k:'inicio', label:'Inicio', icon:'home'},
+  {k:'mapa', label:'Mapa', icon:'map'},
+  {k:'crear', label:'Crear', icon:'plus', create:true},
+  {k:'actividades', label:'Actividades', icon:'trophy'},
+  {k:'perfil', label:'Perfil', icon:'user'},
+];
+const JUMP = [
+  {k:'inicio', label:'Inicio · Feed', icon:'home'},
+  {k:'mapa', label:'Mapa', icon:'map'},
+  {k:'crear-sheet', label:'Crear', icon:'plus'},
+  {k:'actividades', label:'Actividades', icon:'trophy'},
+  {k:'perfil', label:'Perfil', icon:'user'},
+  {k:'lugar', label:'Detalle de lugar', icon:'compass'},
+  {k:'desafio', label:'Detalle de desafío', icon:'gift'},
+  {k:'buscar', label:'Búsqueda', icon:'search'},
+  {k:'notifs', label:'Notificaciones', icon:'bell'},
+  {k:'config', label:'Configuración', icon:'settings'},
+  {k:'editprofile', label:'Editar perfil', icon:'settings'},
+  {k:'verificacion', label:'Verificación de identidad', icon:'compass'},
+  {k:'onboarding', label:'Onboarding', icon:'flag'},
+];
+
+function renderTabbar(){
+  document.getElementById('tabbar').innerHTML = TABS.map(t=>{
+    if(t.create){
+      return `<button class="tabbtn create" data-act="switch-tab" data-tab="${t.k}"><div class="pluswrap">${icon('plus').replace('class="icon "','class="icon" style="stroke:#1c0a03;"')}</div><span>${t.label}</span></button>`;
+    }
+    return `<button class="tabbtn ${S.tab===t.k?'active':''}" data-act="switch-tab" data-tab="${t.k}">${icon(t.icon)}<span>${t.label}</span></button>`;
+  }).join('');
+}
+
+function renderScreenBody(){
+  const el = document.getElementById('screenbody');
+  if(S.tab==='inicio') el.innerHTML = renderInicio();
+  else if(S.tab==='mapa'){ el.innerHTML = renderMapa(); initMapLibre(); }
+  else if(S.tab==='actividades') el.innerHTML = renderActividades();
+  else if(S.tab==='perfil') el.innerHTML = renderPerfil(ME, true);
+  el.scrollTop = el._savedScroll && S._noResetScroll ? el._savedScroll : el.scrollTop;
+}
+
+function renderJump(){
+  document.getElementById('jumplist').innerHTML = JUMP.map(j=>
+    `<button class="${(S.tab===j.k)?'active':''}" data-act="jump" data-k="${j.k}">${icon(j.icon,'icon-sm')} ${j.label}</button>`
+  ).join('');
+  document.getElementById('legend').innerHTML = Object.values(CATS).map(c=>
+    `<div class="row"><span class="dot" style="background:${c.color}"></span>${c.label}</div>`
+  ).join('');
+}
+
+function renderOverlays(){
+  const layer = document.getElementById('overlayLayer');
+  const has = S.overlays.length>0;
+  let html = `<div class="scrim ${has?'show':''}" data-act="scrim-close"></div>`;
+  S.overlays.forEach((ov,i)=>{
+    const showCls = 'show';
+    if(ov.kind==='sheet'){
+      html += `<div class="sheet ${showCls}" style="z-index:${50+i};">${ov.render()}</div>`;
+    } else if(ov.kind==='full'){
+      html += `<div class="fullsheet ${showCls}" style="z-index:${50+i};"><div class="sheet-scroll">${ov.render()}</div></div>`;
+    } else if(ov.kind==='modal'){
+      html += `<div class="modalcard ${showCls}" style="z-index:${50+i};">${ov.render()}</div>`;
+    }
+  });
+  layer.innerHTML = html;
+  persistData();
+}
+
+function render(){
+  if(S.stage==='auth'){
+    document.getElementById('screenbody').innerHTML = renderAuth();
+    document.getElementById('tabbar').innerHTML = '';
+    document.getElementById('overlayLayer').innerHTML = '';
+    renderJump();
+    return;
+  }
+  if(S.stage==='onboarding'){
+    document.getElementById('screenbody').innerHTML = renderOnboarding();
+    document.getElementById('tabbar').innerHTML = '';
+    document.getElementById('overlayLayer').innerHTML = '';
+    renderJump();
+    return;
+  }
+  renderTabbar();
+  renderScreenBody();
+  renderOverlays();
+  renderJump();
+}
+
+/* ---------------- overlay helpers ---------------- */
+function pushOverlay(kind, render){ S.overlays.push({kind, render}); renderOverlays(); }
+function popOverlay(){ S.overlays.pop(); renderOverlays(); }
+function closeAllOverlays(){ S.overlays = []; renderOverlays(); }
+
+function openSheet(name){
+  if(name==='create'){ S.createType=null; pushOverlay('sheet', renderCreateSheet); }
+}
+function openPlace(id){ S.mapSelected=id; S.placeTab='info'; pushOverlay('full', ()=>renderPlaceDetail(id)); }
+function openChallenge(id){ pushOverlay('full', ()=>renderChallengeDetail(id)); }
+function openExp(id){ pushOverlay('full', ()=>renderExpDetail(id)); }
+function openProfile(id){
+  if(id==='me'){ S.tab='perfil'; closeAllOverlays(); render(); return; }
+  S.viewingUser=id; S.following = S.following || new Set();
+  pushOverlay('full', ()=>renderPerfil(userById(id), false));
+}
+function openSearch(){ S.query=''; S.searchTab='todo'; pushOverlay('sheet', renderSearch); }
+function openNotifs(){ pushOverlay('sheet', renderNotifs); }
+function openSettings(){ pushOverlay('full', renderSettings); }
+function openReport(){ S.reportReason=null; pushOverlay('modal', renderReport); }
+function openVerify(){ S.verifyStep='intro'; pushOverlay('full', renderVerify); }
+function refreshTop(renderFn){ const top = S.overlays[S.overlays.length-1]; if(top){ top.render = renderFn; renderOverlays(); } }
+
+/* ---------------- event delegation ---------------- */
+document.addEventListener('click', (e)=>{
+  const t = e.target.closest('[data-act]');
+  if(!t) return;
+  const act = t.dataset.act;
+
+  if(act==='switch-tab'){
+    const tab = t.dataset.tab;
+    if(tab==='crear'){ openSheet('create'); return; }
+    S.tab = tab; closeAllOverlays(); render(); return;
+  }
+  if(act==='jump'){
+    const k = t.dataset.k;
+    if(['inicio','mapa','actividades','perfil'].includes(k)){ S.stage='app'; S.tab=k; closeAllOverlays(); render(); return; }
+    if(k==='crear-sheet'){ S.stage='app'; closeAllOverlays(); render(); openSheet('create'); return; }
+    if(k==='lugar'){ S.stage='app'; S.tab='mapa'; closeAllOverlays(); render(); openPlace('p1'); return; }
+    if(k==='desafio'){ S.stage='app'; S.tab='actividades'; closeAllOverlays(); render(); openChallenge('c1'); return; }
+    if(k==='buscar'){ S.stage='app'; closeAllOverlays(); render(); openSearch(); return; }
+    if(k==='notifs'){ S.stage='app'; closeAllOverlays(); render(); openNotifs(); return; }
+    if(k==='config'){ S.stage='app'; closeAllOverlays(); render(); openSettings(); return; }
+    if(k==='editprofile'){ S.stage='app'; S.tab='perfil'; closeAllOverlays(); render(); pushOverlay('full', renderEditProfile); return; }
+    if(k==='verificacion'){ S.stage='app'; S.tab='perfil'; closeAllOverlays(); render(); openVerify(); return; }
+    if(k==='onboarding'){ S.stage='onboarding'; S.obStep='splash'; render(); return; }
+  }
+  if(act==='open-search'){ openSearch(); return; }
+  if(act==='open-notifs'){ openNotifs(); return; }
+  if(act==='open-settings'){ openSettings(); return; }
+  if(act==='open-place'){ openPlace(t.dataset.id); return; }
+  if(act==='goto-place'){ S.tab='mapa'; S.mapFilter='todos'; render(); openPlace(t.dataset.id); return; }
+  if(act==='goto-geo'){
+    const lat=parseFloat(t.dataset.lat), lon=parseFloat(t.dataset.lon);
+    S.tab='mapa'; S.mapFilter='todos'; closeAllOverlays(); render();
+    if(mlMap){ mlMap.jumpTo({center:[lon,lat], zoom:14}); placeSearchMarker({lat,lon,name:t.dataset.name}); }
+    return;
+  }
+  if(act==='open-challenge'){ openChallenge(t.dataset.id); return; }
+  if(act==='open-exp'){ openExp(t.dataset.id); return; }
+  if(act==='open-profile'){ openProfile(t.dataset.id); return; }
+  if(act==='report'){ openReport(); return; }
+
+  if(act==='close-overlay'){ popOverlay(); return; }
+  if(act==='close-sheet'){ popOverlay(); return; }
+  if(act==='scrim-close'){ popOverlay(); return; }
+  if(act==='back-to-create'){ popOverlay(); openSheet('create'); return; }
+
+  if(act==='open-create-form'){
+    const type=t.dataset.type; S.createType=type;
+    let nearestId = null;
+    if(S.liveLoc && PLACES.length){
+      let best=Infinity;
+      PLACES.forEach(p=>{ const d=Math.hypot(p.lat-S.liveLoc.lat, p.lon-S.liveLoc.lon); if(d<best){ best=d; nearestId=p.id; } });
+    }
+    const nearestPlace = nearestId ? placeById(nearestId) : null;
+    S.draft = { photo:null, cat:null, geo:null, locationText: (type==='post' && nearestPlace) ? nearestPlace.name : '' };
+    popOverlay(); pushOverlay('sheet', ()=>renderCreateForm(type)); return;
+  }
+  if(act==='submit-create'){
+    const sheet = t.closest('.sheet');
+    const type = S.createType;
+    const inputs = sheet ? Array.from(sheet.querySelectorAll('.field input')) : [];
+    const textarea = sheet ? sheet.querySelector('.field textarea') : null;
+    const catBtn = sheet ? sheet.querySelector('.chip.active') : null;
+    const cat = catBtn ? catBtn.dataset.cat : 'naturaleza';
+    const photo = (S.draft && S.draft.photo) || null;
+
+    if(type==='post' && !photo){ toast('Agrega una foto para publicar.'); return; }
+
+    const originalLabel = t.innerHTML;
+    t.disabled = true;
+    t.innerHTML = `<span class="spinner"></span> Publicando…`;
+
+    setTimeout(async ()=>{
+    if(type==='post'){
+      const caption = (inputs[0] && inputs[0].value.trim()) || 'Nueva experiencia en Rüpü.';
+      const whereEl = sheet ? sheet.querySelector('#wherePlaceInput') : null;
+      const whereText = (whereEl ? whereEl.value : (S.draft && S.draft.locationText) || '').trim();
+      const geo = (S.draft && S.draft.geo) || null;
+      const linkedPlace = (geo && geo.linkedPlaceId && placeById(geo.linkedPlaceId))
+        || (whereText ? PLACES.find(pl=>pl.name.toLowerCase()===whereText.toLowerCase()) : null);
+      const fallbackPlace = PLACES.find(pl=>pl.visited) || PLACES[0];
+      const locationText = linkedPlace ? null : (whereText || fallbackPlace.name);
+      try{
+        let photoUrl = photo;
+        let newId = 'post'+Date.now();
+        if(CURRENT_UID){
+          if(photo && photo.startsWith('data:')) photoUrl = await uploadToStorage('posts', CURRENT_UID+'/'+Date.now()+'.jpg', photo);
+          const { data, error } = await sb.from('posts').insert({
+            user_id: CURRENT_UID, place_id: linkedPlace ? linkedPlace.id : null,
+            location_text: locationText, cat, caption, photo_url: photoUrl,
+            lat: (geo && geo.lat!=null) ? geo.lat : null, lon: (geo && geo.lon!=null) ? geo.lon : null,
+          }).select().single();
+          if(error) throw error;
+          newId = data.id;
+        }
+        POSTS.unshift({
+          id:newId, user:'me', cat, createdAt:Date.now(), time:'ahora', caption, likes:0, comments:0, liked:false, saved:false, photo:photoUrl,
+          place: linkedPlace ? linkedPlace.id : null,
+          locationText,
+          geo,
+        });
+        closeAllOverlays(); S.tab='inicio'; render();
+        toast('Publicado correctamente');
+      }catch(err){
+        t.disabled=false; t.innerHTML=originalLabel;
+        toast('No se pudo publicar: '+(err.message||'error desconocido'));
+      }
+    } else if(type==='lugar'){
+      const name = (inputs[0] && inputs[0].value.trim()) || 'Nuevo lugar';
+      const desc = (textarea && textarea.value.trim()) || 'Lugar sugerido por la comunidad, pendiente de más reseñas.';
+      const center = S.liveLoc || LAGUNA_CHICUREO;
+      const jitter = ()=> (Math.random()*0.006-0.003);
+      const lat = center.lat+jitter(), lon = center.lon+jitter();
+      try{
+        let photoUrl = photo;
+        let newId = 'p'+Date.now();
+        if(CURRENT_UID){
+          if(photo && photo.startsWith('data:')) photoUrl = await uploadToStorage('posts', CURRENT_UID+'/place-'+Date.now()+'.jpg', photo);
+          const { error } = await sb.from('places').insert({
+            id:newId, name, cat, cats:[cat], city:'Cerca de ti', lat, lon, description:desc, photo_url:photoUrl, created_by:CURRENT_UID,
+          });
+          if(error) throw error;
+        }
+        PLACES.push({id:newId, name, cat, city:'Cerca de ti', rating:0, ratings:0, dist:'—', by:'me', visitors:1,
+          lat, lon, desc, saved:false, visited:false, photo:photoUrl});
+        closeAllOverlays(); S.tab='mapa'; S.mlView=null; render();
+        toast('Lugar agregado al mapa');
+      }catch(err){
+        t.disabled=false; t.innerHTML=originalLabel;
+        toast('No se pudo crear el lugar: '+(err.message||'error desconocido'));
+      }
+    } else if(type==='actividad'){
+      const title = (inputs[0] && inputs[0].value.trim()) || 'Nuevo desafío';
+      CHALLENGES.unshift({id:'c'+Date.now(), title, cat, total:1, done:0, reward:'+150 XP', steps:[{label:title, done:false}]});
+      closeAllOverlays(); S.tab='actividades'; render();
+      toast('Desafío creado');
+    } else if(type==='evento'){
+      const title = (inputs[0] && inputs[0].value.trim()) || 'Nuevo evento';
+      EXPERIENCES.unshift({id:'e'+Date.now(), title, cat, place:'Por confirmar', diff:'Todo nivel', people:1});
+      closeAllOverlays(); S.tab='actividades'; render();
+      toast('Evento publicado');
+    } else {
+      closeAllOverlays(); render(); toast('Publicado con éxito');
+    }
+    }, 700);
+    return;
+  }
+  if(act==='remove-draft-photo'){
+    S.draft.photo = null;
+    const area = document.getElementById('uploadArea');
+    if(area) area.innerHTML = uploadAreaHTML();
+    return;
+  }
+  if(act==='pick-place'){
+    S.draft.locationText = t.dataset.name;
+    S.draft.geo = null;
+    const inputEl = document.getElementById('wherePlaceInput');
+    if(inputEl) inputEl.value = t.dataset.name;
+    const resBox = document.getElementById('whereResults');
+    if(resBox) resBox.innerHTML = '';
+    t.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    t.classList.add('active');
+    return;
+  }
+  if(act==='pick-geo-where'){
+    const r = (window._whereGeoResults||[])[parseInt(t.dataset.idx,10)];
+    if(!r) return;
+    const label = r.subLabel ? `${r.name}, ${r.subLabel.split(',')[0]}` : r.name;
+    S.draft.locationText = label;
+    S.draft.geo = { name:r.name, subLabel:r.subLabel, lat:r.lat, lon:r.lon, placeId:r.placeId, linkedPlaceId:r.linkedPlaceId||null };
+    const input = document.getElementById('wherePlaceInput');
+    if(input) input.value = label;
+    const box = document.getElementById('whereResults');
+    if(box) box.innerHTML = '';
+    return;
+  }
+  if(act==='pick-geo-map'){
+    const r = (window._mapGeoResults||[])[parseInt(t.dataset.idx,10)];
+    if(!r) return;
+    if(mlMap) mlMap.flyTo({center:[r.lon, r.lat], zoom:14});
+    const box = document.getElementById('mapSearchResults');
+    if(box) box.innerHTML = '';
+    const input = document.getElementById('mapSearchInput');
+    if(input) input.value = r.name;
+    if(r.linkedPlaceId){
+      openPlace(r.linkedPlaceId);
+    } else {
+      placeSearchMarker(r);
+      toast(`Mostrando ${r.name}`);
+    }
+    return;
+  }
+  if(act==='pick-cat'){
+    S.draft.cat = t.dataset.cat;
+    t.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    t.classList.add('active');
+    return;
+  }
+
+  if(act==='map-filter'){
+    S.mapFilter=t.dataset.cat;
+    t.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    t.classList.add('active');
+    addPlaceMarkers();
+    const near = document.getElementById('nearCarousel');
+    if(near) near.innerHTML = nearCarouselHTML();
+    return;
+  }
+  if(act==='locate'){ requestLiveLocation(); return; }
+  if(act==='zoom-in'){ if(mlMap) mlMap.zoomIn(); return; }
+  if(act==='zoom-out'){ if(mlMap) mlMap.zoomOut(); return; }
+
+  if(act==='like'){
+    const p = POSTS.find(x=>x.id===t.dataset.id); p.liked=!p.liked; p.likes += p.liked?1:-1;
+    S._noResetScroll=true; render();
+    if(isRealId(p.id) && CURRENT_UID){
+      if(p.liked) sb.from('likes').insert({post_id:p.id, user_id:CURRENT_UID}).then(({error})=>{ if(error) console.warn('like sync failed', error); });
+      else sb.from('likes').delete().eq('post_id',p.id).eq('user_id',CURRENT_UID).then(({error})=>{ if(error) console.warn('unlike sync failed', error); });
+    }
+    return;
+  }
+  if(act==='save-post'){
+    const p = POSTS.find(x=>x.id===t.dataset.id);
+    if(p){ p.saved=!p.saved; toast(p.saved?'Guardado en tu perfil':'Quitado de guardados'); render(); }
+    return;
+  }
+  if(act==='comment'){ toast('Comentarios próximamente en esta demo'); return; }
+  if(act==='share'){ toast('Enlace copiado'); return; }
+
+  if(act==='save-place' || act==='save-generic'){
+    if(t.dataset.id){ const p = placeById(t.dataset.id); if(p){ p.saved=!p.saved; toast(p.saved?'Lugar guardado':'Quitado de guardados'); return; } }
+    toast('Guardado'); return;
+  }
+  if(act==='toggle-visited'){
+    const p = placeById(t.dataset.id); p.visited=!p.visited;
+    S.overlays[S.overlays.length-1].render = ()=>renderPlaceDetail(p.id); renderOverlays();
+    toast(p.visited? '+120 XP · ¡Marcado como visitado!' : 'Desmarcado'); return;
+  }
+  if(act==='directions'){ toast('Abriendo ruta…'); return; }
+  if(act==='place-tab'){ S.placeTab=t.dataset.tab; S.overlays[S.overlays.length-1].render = ()=>renderPlaceDetail(S.mapSelected); renderOverlays(); return; }
+
+  if(act==='prof-tab'){ S.profileTab=t.dataset.tab; render(); return; }
+  if(act==='toggle-follow'){
+    S.following = S.following || new Set();
+    const id=t.dataset.id;
+    const nowFollowing = !S.following.has(id);
+    nowFollowing ? S.following.add(id) : S.following.delete(id);
+    S.overlays[S.overlays.length-1].render = ()=>renderPerfil(userById(id), false); renderOverlays();
+    toast(nowFollowing?'Ahora sigues a este explorador':'Dejaste de seguir');
+    if(isRealId(id) && CURRENT_UID){
+      if(nowFollowing) sb.from('follows').insert({follower_id:CURRENT_UID, followee_id:id}).then(({error})=>{ if(error) console.warn('follow sync failed', error); });
+      else sb.from('follows').delete().eq('follower_id',CURRENT_UID).eq('followee_id',id).then(({error})=>{ if(error) console.warn('unfollow sync failed', error); });
+    }
+    return;
+  }
+
+  if(act==='accept-challenge'){ toast('¡Desafío en progreso! Sigue explorando'); return; }
+  if(act==='join-exp'){ toast('Te uniste a la experiencia'); return; }
+
+  if(act==='search-tab'){ S.searchTab=t.dataset.tab; S.overlays[S.overlays.length-1].render = renderSearch; renderOverlays();
+    setTimeout(()=>{const i=document.getElementById('searchbox'); if(i){i.focus(); i.setSelectionRange(i.value.length,i.value.length);}},0); return; }
+
+  if(act==='toggle-setting'){ const k=t.dataset.k; S[k]=!S[k]; S.overlays[S.overlays.length-1].render = renderSettings; renderOverlays(); return; }
+  if(act==='logout'){ closeAllOverlays(); sb.auth.signOut().then(()=>{ location.reload(); }); return; }
+
+  if(act==='pick-reason'){ S.reportReason = parseInt(t.dataset.i); S.overlays[S.overlays.length-1].render = renderReport; renderOverlays(); return; }
+  if(act==='submit-report'){ popOverlay(); toast('Reporte enviado, gracias por ayudar a la comunidad'); return; }
+
+  if(act==='ob-go'){ S.obStep=t.dataset.step; render(); return; }
+  if(act==='toggle-interest'){ const k=t.dataset.k; S.interests.has(k)? S.interests.delete(k) : S.interests.add(k); render(); return; }
+  if(act==='ob-finish'){ S.stage='auth'; S.authView='register'; S.authError=''; render(); return; }
+
+  if(act==='open-edit-profile'){ pushOverlay('full', renderEditProfile); return; }
+  if(act==='remove-profile-photo'){
+    ME.photo = null;
+    const area = document.getElementById('editPhotoArea');
+    if(area) area.innerHTML = editPhotoAreaHTML();
+    persistData();
+    if(CURRENT_UID) sb.from('profiles').update({avatar_url:null}).eq('id',CURRENT_UID).then(({error})=>{ if(error) console.warn('remove photo sync failed', error); });
+    return;
+  }
+  if(act==='remove-my-photo'){
+    const pid = t.dataset.id;
+    ME.myPhotos = (ME.myPhotos||[]).filter(p=>p.id!==pid);
+    render();
+    toast('Foto eliminada');
+    if(CURRENT_UID) sb.from('my_photos').delete().eq('id',pid).eq('user_id',CURRENT_UID).then(({error})=>{ if(error) console.warn('remove my_photo sync failed', error); });
+    return;
+  }
+  if(act==='save-edit-profile'){
+    const nameEl = document.getElementById('editNameInput');
+    const handleEl = document.getElementById('editHandleInput');
+    const bioEl = document.getElementById('editBioInput');
+    if(nameEl && nameEl.value.trim()) ME.name = nameEl.value.trim();
+    if(handleEl && handleEl.value.trim()){
+      const h = handleEl.value.trim();
+      ME.handle = h.startsWith('@') ? h : '@'+h;
+    }
+    if(bioEl) ME.bio = bioEl.value.trim();
+    popOverlay(); render();
+    toast('Perfil actualizado');
+    if(CURRENT_UID){
+      sb.from('profiles').update({ name: ME.name, username: ME.handle.replace(/^@/,''), bio: ME.bio }).eq('id', CURRENT_UID).then(({error})=>{
+        if(error) toast('Ojo: no se pudo sincronizar el perfil con el servidor');
+      });
+    }
+    return;
+  }
+  if(act==='open-verify'){ openVerify(); return; }
+  if(act==='verify-start'){
+    S.verifyStep='scan'; render();
+    clearTimeout(window._verifyTimer);
+    window._verifyTimer = setTimeout(()=>{ ME.verified=true; S.verifyStep='done'; render(); }, 2400);
+    return;
+  }
+
+  if(act==='auth-switch'){ S.authView = t.dataset.view; S.authError=''; render(); return; }
+  if(act==='auth-remove-photo'){ S.authPhoto=null; const a=document.getElementById('authPhotoArea'); if(a) a.innerHTML=authPhotoAreaHTML(); return; }
+  if(act==='do-login'){
+    const email = (document.getElementById('authEmail')||{}).value||'';
+    const password = (document.getElementById('authPassword')||{}).value||'';
+    if(!email.trim() || !password){ S.authError='Completa correo y contraseña.'; render(); return; }
+    S.authBusy=true; S.authError=''; render();
+    sb.auth.signInWithPassword({email:email.trim(), password}).then(async ({data, error})=>{
+      if(error){ S.authBusy=false; S.authError='Correo o contraseña incorrectos.'; render(); return; }
+      CURRENT_UID = data.user.id;
+      try{ await loadAllData(); }catch(e){ console.warn(e); }
+      S.authBusy=false; S.stage='app'; S.tab='inicio'; render();
+      toast('¡Bienvenido de vuelta!');
+    });
+    return;
+  }
+  if(act==='do-register'){
+    const name = (document.getElementById('authName')||{}).value||'';
+    const username = (document.getElementById('authUsername')||{}).value||'';
+    const email = (document.getElementById('authEmail2')||{}).value||'';
+    const password = (document.getElementById('authPassword2')||{}).value||'';
+    const termsEl = document.getElementById('authTerms');
+    if(!name.trim() || !username.trim() || !email.trim() || !password){ S.authError='Completa todos los campos.'; render(); return; }
+    if(password.length<6){ S.authError='La contraseña debe tener al menos 6 caracteres.'; render(); return; }
+    if(!termsEl || !termsEl.checked){ S.authError='Debes aceptar los términos para continuar.'; render(); return; }
+    const cleanUsername = username.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+    if(!cleanUsername){ S.authError='Usuario inválido (usa letras, números o guión bajo).'; render(); return; }
+    S.authBusy=true; S.authError=''; render();
+    (async ()=>{
+      const { data, error } = await sb.auth.signUp({ email: email.trim(), password });
+      if(error){ S.authBusy=false; S.authError=error.message; render(); return; }
+      const uid = data.user.id;
+      let avatarUrl = null;
+      if(S.authPhoto){
+        try{ avatarUrl = await uploadToStorage('avatars', uid+'/avatar.jpg', S.authPhoto); }catch(e){ console.warn('avatar upload failed', e); }
+      }
+      const { error: perr } = await sb.from('profiles').insert({ id:uid, username:cleanUsername, name:name.trim(), avatar_url:avatarUrl });
+      if(perr){
+        S.authBusy=false;
+        S.authError = /duplicate|unique/i.test(perr.message) ? 'Ese nombre de usuario ya está en uso.' : perr.message;
+        render(); return;
+      }
+      CURRENT_UID = uid;
+      try{ await loadAllData(); }catch(e){ console.warn(e); }
+      S.authBusy=false; S.stage='app'; S.tab='inicio'; S.authPhoto=null; render();
+      toast('¡Cuenta creada! Bienvenido a Rüpü');
+    })();
+    return;
+  }
+  if(act==='comment'){ openComments(t.dataset.id); return; }
+  if(act==='send-comment'){
+    const postId = t.dataset.id;
+    const input = document.getElementById('commentInput');
+    const body = input ? input.value.trim() : '';
+    if(!body) return;
+    if(!isRealId(postId)){ toast('Esta publicación es de demostración; los comentarios reales funcionan en publicaciones nuevas.'); return; }
+    t.disabled = true;
+    sb.from('comments').insert({post_id:postId, user_id:CURRENT_UID, body}).select('*, profiles(name, username, avatar_url)').single().then(({data, error})=>{
+      t.disabled = false;
+      if(error){ toast('No se pudo comentar: '+error.message); return; }
+      const post = POSTS.find(p=>p.id===postId); if(post) post.comments++;
+      const prof = (data && data.profiles) || {};
+      const dispName = prof.name || prof.username || ME.name;
+      S._commentsCache = S._commentsCache||{};
+      S._commentsCache[postId] = (S._commentsCache[postId]||[]).concat([{...data, _name:dispName, _photo:prof.avatar_url||ME.photo, _initials:dispName.trim().slice(0,2).toUpperCase()}]);
+      if(input) input.value='';
+      refreshTop(()=>renderComments(postId));
+    });
+    return;
+  }
+  if(act==='noop'){ return; }
+});
+
+
+document.addEventListener('change', (e)=>{
+  if(e.target.id==='createPhotoInput' || e.target.id==='createCameraInput'){
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if(!file) return;
+    readAndCompressImage(file, (dataUrl)=>{
+      if(!dataUrl){ toast('No se pudo procesar la imagen'); return; }
+      S.draft.photo = dataUrl;
+      const area = document.getElementById('uploadArea');
+      if(area) area.innerHTML = uploadAreaHTML();
+    });
+  }
+  if(e.target.id==='profilePhotoGalleryInput' || e.target.id==='profilePhotoCameraInput'){
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if(!file) return;
+    readAndCompressImage(file, (dataUrl)=>{
+      if(!dataUrl){ toast('No se pudo procesar la imagen'); return; }
+      ME.photo = dataUrl;
+      const area = document.getElementById('editPhotoArea');
+      if(area) area.innerHTML = editPhotoAreaHTML();
+      persistData();
+      if(CURRENT_UID){
+        uploadToStorage('avatars', CURRENT_UID+'/avatar-'+Date.now()+'.jpg', dataUrl).then(url=>{
+          ME.photo = url;
+          return sb.from('profiles').update({avatar_url:url}).eq('id',CURRENT_UID);
+        }).then(()=>{
+          const a2 = document.getElementById('editPhotoArea');
+          if(a2) a2.innerHTML = editPhotoAreaHTML();
+        }).catch(err=>{ toast('No se pudo subir la foto: '+err.message); });
+      }
+    });
+  }
+  if(e.target.id==='myPhotoGalleryInput' || e.target.id==='myPhotoCameraInput'){
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if(!file) return;
+    readAndCompressImage(file, async (dataUrl)=>{
+      if(!dataUrl){ toast('No se pudo procesar la imagen'); return; }
+      const tempId = 'ph'+Date.now();
+      ME.myPhotos = ME.myPhotos || [];
+      ME.myPhotos.unshift({id:tempId, url:dataUrl, createdAt:Date.now()});
+      render();
+      if(CURRENT_UID){
+        try{
+          const url = await uploadToStorage('posts', CURRENT_UID+'/gallery-'+Date.now()+'.jpg', dataUrl);
+          const { data, error } = await sb.from('my_photos').insert({user_id:CURRENT_UID, url}).select().single();
+          if(error) throw error;
+          const item = ME.myPhotos.find(p=>p.id===tempId);
+          if(item){ item.id = data.id; item.url = url; }
+          render();
+          toast('Foto agregada a tu perfil');
+        }catch(err){
+          ME.myPhotos = ME.myPhotos.filter(p=>p.id!==tempId);
+          render();
+          toast('No se pudo subir la foto: '+err.message);
+        }
+      } else {
+        toast('Foto agregada a tu perfil');
+      }
+    });
+  }
+  if(e.target.id==='authPhotoInput'){
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if(!file) return;
+    readAndCompressImage(file, (dataUrl)=>{
+      if(!dataUrl){ toast('No se pudo procesar la imagen'); return; }
+      S.authPhoto = dataUrl;
+      const area = document.getElementById('authPhotoArea');
+      if(area) area.innerHTML = authPhotoAreaHTML();
+    });
+  }
+});
+
+document.addEventListener('input', (e)=>{
+  if(e.target.id==='searchbox'){
+    S.query = e.target.value;
+    const box = S.overlays[S.overlays.length-1];
+    if(box){ box.render = renderSearch; renderOverlays();
+      const i=document.getElementById('searchbox'); if(i){ i.focus(); i.setSelectionRange(i.value.length,i.value.length); }
+    }
+  }
+  if(e.target.id==='wherePlaceInput'){
+    const q = e.target.value;
+    S.draft.locationText = q;
+    S.draft.geo = null;
+    if(!q.trim()){ const b=document.getElementById('whereResults'); if(b) b.innerHTML=''; return; }
+    runPlaceSearch(q, 'whereResults', searchWhereGeo, 'pick-geo-where', '_whereGeoResults');
+  }
+  if(e.target.id==='mapSearchInput'){
+    const q = e.target.value;
+    if(!q.trim()){ const b=document.getElementById('mapSearchResults'); if(b) b.innerHTML=''; return; }
+    runPlaceSearch(q, 'mapSearchResults', searchMapGeo, 'pick-geo-map', '_mapGeoResults');
+  }
+});
+
+hydrateFromStorage();
+initAuthFlow();
+
+async function initAuthFlow(){
+  try{
+    const { data: { session } } = await sb.auth.getSession();
+    if(session && session.user){
+      CURRENT_UID = session.user.id;
+      try{ await loadAllData(); }catch(e){ console.warn('Rüpü: error cargando datos', e); }
+      S.stage='app';
+    } else {
+      S.stage='onboarding'; S.obStep='splash';
+    }
+  }catch(e){
+    console.warn('Rüpü: error de sesión', e);
+    S.stage='onboarding'; S.obStep='splash';
+  }
+  render();
+}
+</script>
+
+</body></html>
